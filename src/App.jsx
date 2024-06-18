@@ -19,7 +19,7 @@ function App() {
         <div className="absolute top-0 left-0 w-full h-full bg-black opacity-50" />
         <div className="relative z-10 flex-grow flex flex-col">
           <Nabvar />
-          <main className="flex-grow flex flex-col">
+          <main className="flex-grow flex flex-col mt-24">
             <Routes>
               <Route path="/" element={<Inicio />} />
               <Route path="/formulario" element={<Formulario />} />

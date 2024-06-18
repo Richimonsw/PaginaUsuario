@@ -4,7 +4,7 @@ import { FaMountain } from 'react-icons/fa'; // Usamos FaMountain como alternati
 
 export const Inicio = () => {
     return (
-        <div className="container mx-auto mb-10 text-white flex flex-col items-center md:flex-row md:items-center md:justify-center max-w-7xl">
+        <div className="container mx-auto mb-10 p-2 text-white flex flex-col items-center md:flex-row md:items-center md:justify-center max-w-7xl">
             <div className="bg-white bg-opacity-80 p-6 sm:p-8 rounded-lg shadow-xl w-full md:w-2/5 mb-6 md:mb-0">
                 <div className="flex items-center mb-4">
                     <FaMountain className="text-red-600 text-3xl mr-2" />
