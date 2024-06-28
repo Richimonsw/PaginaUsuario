@@ -1,6 +1,6 @@
 import React from 'react';
 import { Semaforo } from '../components/Semaforo';
-import { FaMountain } from 'react-icons/fa'; // Usamos FaMountain como alternativa
+import { FaMountain } from 'react-icons/fa'; 
 
 export const Inicio = () => {
     return (
