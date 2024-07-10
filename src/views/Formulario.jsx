@@ -1,6 +1,6 @@
 
-import { Nota } from '../components/Nota';
-import { FormRegistro } from '../components/Formulario';
+import { Nota } from '../components/Inicio/Nota';
+import { FormRegistro } from '../components/Registro/Formulario';
 export function Formulario() {
 
 

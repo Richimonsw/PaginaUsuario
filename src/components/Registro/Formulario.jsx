@@ -1,13 +1,13 @@
 
-import { formConfig } from './Registro/formConfig';
-import { FormField } from './Registro/FormField';
-import { useFormRegistro } from '../hooks/useFormRegistro';
+import { formConfig } from './formConfig';
+import { FormField } from '../FormField';
+import { useFormRegistro } from '../../hooks/useFormRegistro';
 
 export const FormRegistro = () => {
   const { register, handleSubmit, errors, onSubmit, domicilios, enfermedades } = useFormRegistro();
 
   const updatedFormConfig = formConfig.map(field => {
-    if (field.name === 'lugarResidencia') {
+    if (field.name === 'domicilio') {
       return {
         ...field,
         options: {
@@ -16,15 +16,15 @@ export const FormRegistro = () => {
         }
       };
     }
-    if (field.name === 'enfermedadesAlergias') {
-      return {
-        ...field,
-        options: {
-          ...field.options,
-          choices: enfermedades.map(e => ({ value: e._id, label: e.nombre }))
-        }
-      };
-    }
+    // if (field.name === 'enfermedades') {
+    //   return {
+    //     ...field,
+    //     options: {
+    //       ...field.options,
+    //       choices: enfermedades.map(e => ({ value: e._id, label: e.nombre }))
+    //     }
+    //   };
+    // }
     return field;
   });
 

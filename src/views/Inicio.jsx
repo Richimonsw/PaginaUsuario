@@ -1,5 +1,5 @@
 import React from 'react';
-import { Semaforo } from '../components/Semaforo';
+import { Semaforo } from '../components/Inicio/Semaforo';
 import { FaMountain } from 'react-icons/fa'; 
 
 export const Inicio = () => {

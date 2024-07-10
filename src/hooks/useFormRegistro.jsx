@@ -6,14 +6,14 @@ import { useEffect, useState } from 'react';
 export const useFormRegistro = () => {
   const { register, handleSubmit, formState: { errors }, reset } = useForm({
     defaultValues: {
-      nombres: '',
-      apellidos: '',
+      nombre: '',
+      apellido: '',
       cedula: '',
-      correoElectronico: '',
+      email: '',
       edad: '',
-      enfermedadesAlergias: '',
-      medicamentos: '',
-      lugarResidencia: '',
+      telefono: '',
+      enfermedades: '',
+      domicilio: '',
     },
   });
 
@@ -23,8 +23,9 @@ export const useFormRegistro = () => {
   useEffect(() => {
     const fetchDomicilios = async () => {
       try {
-        const response = await axios.get('https://sistema-cotopaxi-backend.onrender.com/api/domicilios');
+        const response = await axios.get('http://localhost:5000/api/domicilios');
         setDomicilios(response.data);
+        console.log(response.data);
       } catch (error) {
         console.error('Error fetching domicilios:', error);
       }
@@ -32,8 +33,32 @@ export const useFormRegistro = () => {
 
     const fetchEnfermedades = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/enfermedades');
-        setEnfermedades(response.data);
+        //const response = await axios.get('http://localhost:5000/api/enfermedades');
+
+        
+        setEnfermedades([
+          {
+            id: 1,
+            nombre: 'Enfermedad 1',
+            descripcion: 'Descripción de la enfermedad 1',
+            categoria: 'Categoria de la enfermedad 1',
+            estado: true,
+          },
+          {
+            id: 2,
+            nombre: 'Enfermedad 2',
+            descripcion: 'Descripción de la enfermedad 2',
+            categoria: 'Categoria de la enfermedad 2',
+            estado: false,
+          },
+          {
+            id: 3,
+            nombre: 'Enfermedad 3',
+            descripcion: 'Descripción de la enfermedad 3',
+            categoria: 'Categoria de la enfermedad 3',
+            estado: false,
+          },
+        ]);
       } catch (error) {
         console.error('Error fetching domicilios:', error);
       }
@@ -58,7 +83,7 @@ export const useFormRegistro = () => {
 
       console.log(cloudinaryResponse);
 
-      const personaResponse = await axios.post('https://sistema-cotopaxi-backend.onrender.com/api/personas', {
+      const personaResponse = await axios.post('http://localhost:5000/api/ciudadano/register', {
         ...data,
         qrURL: cloudinaryResponse.data.secure_url
       });
