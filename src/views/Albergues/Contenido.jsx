@@ -15,6 +15,15 @@ export const Contenido = () => {
     const [form] = Form.useForm();
     const location = useLocation();
     const navigate = useNavigate();
+    const [rol, setRol] = useState('');
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            const decodedToken = JSON.parse(atob(token.split('.')[1]));
+            setRol(decodedToken.rol);
+        }
+    }, []);
 
     const getAlbergueId = () => {
         const params = new URLSearchParams(location.search);
@@ -166,7 +175,12 @@ export const Contenido = () => {
                     Volver
                 </button>
             </div>
-            <Administradores albergueId={albergueId} />
+
+            {rol === 'admin_general' && (
+                <>
+                    <Administradores albergueId={albergueId} />
+                </>
+            )}
             <Bodegas albergueId={albergueId} />
             <div className="bg-white p-4 mt-5 rounded-lg shadow">
                 <h2 className="text-2xl font-bold mb-4">Ciudadanos</h2>

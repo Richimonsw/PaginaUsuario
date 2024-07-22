@@ -4,7 +4,8 @@ import QRCode from 'qrcode';
 import { useEffect, useState } from 'react';
 
 export const useFormRegistro = () => {
-  const { register, handleSubmit, formState: { errors }, reset } = useForm({
+  const { register, handleSubmit, formState: { errors }, reset, watch } = useForm({
+    mode: 'onChange',
     defaultValues: {
       nombre: '',
       apellido: '',
@@ -13,19 +14,23 @@ export const useFormRegistro = () => {
       edad: '',
       telefono: '',
       enfermedades: '',
+      medicamentos: [],
       domicilio: '',
     },
   });
 
   const [domicilios, setDomicilios] = useState([]);
   const [enfermedades, setEnfermedades] = useState([]);
+  const [medicamentos, setMedicamentos] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
 
   useEffect(() => {
     const fetchDomicilios = async () => {
       try {
         const response = await axios.get('http://localhost:5000/api/domicilios');
         setDomicilios(response.data);
-        console.log(response.data);
       } catch (error) {
         console.error('Error fetching domicilios:', error);
       }
@@ -33,46 +38,35 @@ export const useFormRegistro = () => {
 
     const fetchEnfermedades = async () => {
       try {
-        //const response = await axios.get('http://localhost:5000/api/enfermedades');
-
-        
-        setEnfermedades([
-          {
-            id: 1,
-            nombre: 'Enfermedad 1',
-            descripcion: 'Descripción de la enfermedad 1',
-            categoria: 'Categoria de la enfermedad 1',
-            estado: true,
-          },
-          {
-            id: 2,
-            nombre: 'Enfermedad 2',
-            descripcion: 'Descripción de la enfermedad 2',
-            categoria: 'Categoria de la enfermedad 2',
-            estado: false,
-          },
-          {
-            id: 3,
-            nombre: 'Enfermedad 3',
-            descripcion: 'Descripción de la enfermedad 3',
-            categoria: 'Categoria de la enfermedad 3',
-            estado: false,
-          },
-        ]);
+        const response = await axios.get('http://localhost:5000/api/enfermedad');
+        setEnfermedades(response.data);
       } catch (error) {
-        console.error('Error fetching domicilios:', error);
+        console.error('Error fetching enfermedades:', error);
       }
     };
 
-    
     fetchEnfermedades();
     fetchDomicilios();
   }, []);
 
+  const selectedEnfermedad = watch('enfermedades');
+  useEffect(() => {
+    if (selectedEnfermedad) {
+      const enfermedad = enfermedades.find(e => e.nombre === selectedEnfermedad);
+      if (enfermedad) {
+        setMedicamentos(enfermedad.medicamentos);
+      }
+    } else {
+      setMedicamentos([]);
+    }
+  }, [selectedEnfermedad, enfermedades]);
+
   const onSubmit = async (data) => {
+    setIsSubmitting(true);
+    setSubmitError(null);
+    setSubmitSuccess(false);
 
     try {
-
       const qrData = JSON.stringify(data);
       const qrImage = await QRCode.toDataURL(qrData);
 
@@ -81,21 +75,20 @@ export const useFormRegistro = () => {
         upload_preset: 'QRCotopaxi'
       });
 
-      console.log(cloudinaryResponse);
-
       const personaResponse = await axios.post('http://localhost:5000/api/ciudadano/register', {
         ...data,
         qrURL: cloudinaryResponse.data.secure_url
       });
 
-      console.log(personaResponse);
-
       reset();
+      setSubmitSuccess(true);
     } catch (error) {
+      setSubmitError(error.response?.data?.error || 'Hubo un error al procesar la solicitud. Por favor, inténtelo de nuevo.');
       console.error(error);
+    } finally {
+      setIsSubmitting(false);
     }
-
   };
 
-  return { register, handleSubmit, errors, onSubmit, domicilios, enfermedades };
+  return { register, handleSubmit, errors, onSubmit, domicilios, enfermedades, medicamentos, isSubmitting, submitError, submitSuccess, watch };
 };

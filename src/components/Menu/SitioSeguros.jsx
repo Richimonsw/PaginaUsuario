@@ -14,7 +14,6 @@ export const SitioSeguros = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newSitioSeguro, setNewSitioSeguro] = useState({
     nombre: '',
-    descripcion: '',
     cordenadas_x: '',
     cordenadas_y: '',
   });
@@ -78,8 +77,8 @@ export const SitioSeguros = () => {
   };
 
   const handleEdit = (sitioSeguro) => {
-    const { nombre, descripcion, cordenadas_x, cordenadas_y } = sitioSeguro;
-    setEditingSitioSeguro({ nombre, descripcion, cordenadas_x, cordenadas_y, id: sitioSeguro._id });
+    const { nombre, cordenadas_x, cordenadas_y } = sitioSeguro;
+    setEditingSitioSeguro({ nombre, cordenadas_x, cordenadas_y, id: sitioSeguro._id });
     setIsModalOpen(true);
   };
 
@@ -103,7 +102,7 @@ export const SitioSeguros = () => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setEditingSitioSeguro(null);
-    setNewSitioSeguro({ nombre: '', descripcion: '', cordenadas_x: '', cordenadas_y: '' });
+    setNewSitioSeguro({ nombre: '', cordenadas_x: '', cordenadas_y: '' });
   };
 
   const handleInputChange = (name, value) => {
@@ -186,7 +185,6 @@ export const SitioSeguros = () => {
             key={sitioSeguro._id}
             title={sitioSeguro.nombre}
             items={[
-              { icon: FaArrowRight, text: `${sitioSeguro.descripcion}`, color: "green" },
               { icon: FaMapMarkerAlt, text: `Ubicación: ${sitioSeguro.cordenadas_x}, ${sitioSeguro.cordenadas_y}`, color: "red" },
             ]}
             actions={[
@@ -217,15 +215,6 @@ export const SitioSeguros = () => {
           required
           validate={validations.nombre}
           label="Nombre del sitio seguro"
-        />
-        <GenericInput
-          type="textarea"
-          name="descripcion"
-          value={editingSitioSeguro ? editingSitioSeguro.descripcion : newSitioSeguro.descripcion}
-          onChange={handleInputChange}
-          placeholder="Descripción (opcional)"
-          validate={validations.descripcion}
-          label="Descripción"
         />
         <GenericInput
           type="number"

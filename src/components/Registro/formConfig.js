@@ -25,6 +25,14 @@ export const formConfig = [
     type: 'text',
     options: {
       required: { value: true, message: "La cédula es obligatoria" },
+      minLength: {
+        value: 10,
+        message: 'La cédula debe tener al menos 10 caracteres'
+      },
+      maxLength: {
+        value: 10,
+        message: 'La cédula no puede tener más de 10 caracteres'
+      },
       pattern: { value: /^\d+$/, message: "La cédula solo debe contener números" },
 
     },
@@ -55,10 +63,10 @@ export const formConfig = [
   {
     name: 'enfermedades',
     label: 'Enfermedades o Alergias',
-    type: 'text',
+    type: 'select',
     options: {
       required: { value: true, message: "Seleccione una enfermedad o alergia" },
-      minLength: { value: 2, message: "Enfermedad o alergia debe ser mayor a 2 caracteres" }
+      choices: [],
     },
   },
   {
@@ -70,18 +78,15 @@ export const formConfig = [
       pattern: { value: /^\d+$/, message: "El telefono solo debe contener números" },
     },
   },
-  // {
-  //   name: 'medicamentos',
-  //   label: 'Medicamento',
-  //   type: 'select',
-  //   options: {
-  //     required: { value: true, message: "Seleccione un medicamento" },
-  //     choices: [
-  //       { value: "Medicamento1", label: "Medicamento 1" },
-  //       { value: "Medicamento2", label: "Medicamento 2" },
-  //     ],
-  //   },
-  // },
+  {
+    name: 'medicamentos',
+    label: 'Medicamentos',
+    type: 'select',
+    options: {
+      required: { value: true, message: "Seleccione un medicamento" },
+      choices: [],
+    },
+  },
   {
     name: 'domicilio',
     label: 'Ubicación',

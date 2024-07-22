@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useState } from 'react';
 
 export const useFormLogin = () => {
   const navigate = useNavigate();
@@ -10,6 +11,7 @@ export const useFormLogin = () => {
       password: ''
     },
   });
+  const [loginError, setLoginError] = useState('');
 
   const onSubmit = async (data) => {
 
@@ -24,10 +26,11 @@ export const useFormLogin = () => {
       navigate('/menu');
       reset();
     } catch (error) {
-      console.error(error);
+      setLoginError(error.response.data.message);
+      
     }
 
   };
 
-  return { register, handleSubmit, errors, onSubmit };
+  return { register, handleSubmit, errors, onSubmit, loginError };
 };

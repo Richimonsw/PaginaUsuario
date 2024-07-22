@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Route, Routes, Navigate, Outlet } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Outlet } from 'react-router-dom';
 import bgImage from './assets/cotopaxi_inicio.jpg';
 import { Nabvar } from './components/Nabvar';
 import { Inicio } from './views/Inicio';
@@ -13,8 +13,10 @@ import { Productos } from './views/Productos';
 import { Domicilio } from './components/Menu/Domicilio';
 import { Contenido } from './views/Albergues/Contenido';
 import { Enfermedades } from './components/Menu/Enfermedades';
+import { Dashboard } from './components/Menu/Dashboard';
 import ProtectedRoute from './Services/ProtectedRoute';
-
+import { useEffect } from 'react';
+import RoleProtectedRoute from './Services/RoleProtectedRoute';
 
 const protectedRoute = (Component) => (
   <ProtectedRoute>
@@ -23,20 +25,87 @@ const protectedRoute = (Component) => (
 );
 
 
+
+
 function App() {
+
   return (
     <Router>
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/menu" element={protectedRoute(Menu)}>
-          <Route path="Personal" element={protectedRoute(Personal)} />
-          <Route path="Albergues" element={protectedRoute(Albergues)} />
-          <Route path="Sitios-seguros" element={protectedRoute(SitioSeguros)} />
-          <Route path="Bodegas" element={protectedRoute(Bodegas)} />
-          <Route path="Domicilios" element={protectedRoute(Domicilio)} />
-          <Route path="Productos" element={protectedRoute(Productos)} />
-          <Route path="Contenido" element={protectedRoute(Contenido)} />
-          <Route path="Enfermedades" element={protectedRoute(Enfermedades)} />
+          <Route
+            path="Dashboard"
+            element={
+              <RoleProtectedRoute allowedRoles={'admin_general'}>
+                <Dashboard />
+              </RoleProtectedRoute>
+            }
+          />
+          <Route
+            path="Personal"
+            element={
+              <RoleProtectedRoute allowedRoles={['admin_general']}>
+                <Personal />
+              </RoleProtectedRoute>
+            }
+          />
+          <Route
+            path="Albergues"
+            element={
+              <RoleProtectedRoute allowedRoles={['admin_general', 'admin_farmaceutico', 'admin_zonal']}>
+                <Albergues />
+              </RoleProtectedRoute>
+            }
+          />
+          <Route
+            path="Sitios-seguros"
+            element={
+              <RoleProtectedRoute allowedRoles={['admin_general']}>
+                <SitioSeguros />
+              </RoleProtectedRoute>
+            }
+          />
+          <Route
+            path="Bodegas"
+            element={
+              <RoleProtectedRoute allowedRoles={['admin_general', 'admin_farmaceutico', 'admin_zonal']}>
+                <Bodegas />
+              </RoleProtectedRoute>
+            }
+          />
+          <Route
+            path="Domicilios"
+            element={
+              <RoleProtectedRoute allowedRoles={['admin_general']}>
+                <Domicilio />
+              </RoleProtectedRoute>
+            }
+          />
+          <Route
+            path="Productos"
+            element={
+              <RoleProtectedRoute allowedRoles={['admin_general', 'admin_farmaceutico', 'admin_zonal']}>
+                <Productos />
+              </RoleProtectedRoute>
+            }
+          />
+          <Route
+            path="Contenido"
+            element={
+              <RoleProtectedRoute allowedRoles={['admin_general', 'admin_farmaceutico', 'admin_zonal']}>
+                <Contenido />
+              </RoleProtectedRoute>
+            }
+          />
+          <Route
+            path="Enfermedades"
+            element={
+              <RoleProtectedRoute allowedRoles={['admin_general', 'admin_farmaceutico', 'admin_zonal']}>
+                <Enfermedades />
+              </RoleProtectedRoute>
+            }
+          />
         </Route>
         <Route path="/" element={<MainLayout />}>
           <Route path="/" element={<Inicio />} />

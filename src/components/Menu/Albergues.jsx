@@ -16,7 +16,6 @@ export const Albergues = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newAlbergue, setNewAlbergue] = useState({
     nombre: '',
-    descripcion: '',
     capacidadCiudadanos: '',
     capacidadBodegas: '',
     capacidadUsuarios: '',
@@ -26,6 +25,15 @@ export const Albergues = () => {
   const [editingAlbergue, setEditingAlbergue] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [rol, setRol] = useState('');
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const decodedToken = JSON.parse(atob(token.split('.')[1]));
+      setRol(decodedToken.rol);
+    }
+  }, []);
 
   const validations = {
     nombre: (value) => {
@@ -50,10 +58,6 @@ export const Albergues = () => {
       const num = parseFloat(value);
       if (isNaN(num)) return "La capacidad de usuarios debe ser un número";
       if (num < 0) return "La capacidad de usuarios no puede ser negativa";
-      return null;
-    },
-    descripcion: (value) => {
-      if (value.length > 200) return "La descripción no debe exceder los 200 caracteres";
       return null;
     },
     cordenadas_x: (value) => {
@@ -101,8 +105,8 @@ export const Albergues = () => {
   };
 
   const handleEdit = (albergue) => {
-    const { nombre, descripcion, capacidadCiudadanos, capacidadBodegas, capacidadUsuarios, cordenadas_x, cordenadas_y } = albergue;
-    setEditingAlbergue({ nombre, descripcion, capacidadCiudadanos, capacidadBodegas, capacidadUsuarios, cordenadas_x, cordenadas_y, id: albergue._id });
+    const { nombre, capacidadCiudadanos, capacidadBodegas, capacidadUsuarios, cordenadas_x, cordenadas_y } = albergue;
+    setEditingAlbergue({ nombre, capacidadCiudadanos, capacidadBodegas, capacidadUsuarios, cordenadas_x, cordenadas_y, id: albergue._id });
     setIsModalOpen(true);
   };
 
@@ -113,7 +117,7 @@ export const Albergues = () => {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       setAlbergues(albergues.filter(albergue => albergue._id !== id));
-      
+
       setLoading(false);
     } catch (error) {
       console.error('Error al eliminar albergue:', error);
@@ -128,7 +132,7 @@ export const Albergues = () => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setEditingAlbergue(null);
-    setNewAlbergue({ nombre: '', descripcion: '', capacidadCiudadanos: '', capacidadBodegas: '', capacidadUsuarios: '', cordenadas_x: '', cordenadas_y: '' });
+    setNewAlbergue({ nombre: '', capacidadCiudadanos: '', capacidadBodegas: '', capacidadUsuarios: '', cordenadas_x: '', cordenadas_y: '' });
   };
 
   const handleInputChange = (name, value) => {
@@ -165,14 +169,14 @@ export const Albergues = () => {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         setAlbergues(albergues.map(a => a._id === id ? { ...a, ...response.data.albergue } : a));
-        
+
         setLoading(false);
       } else {
         response = await axios.post('http://localhost:5000/api/albergue/register', newAlbergue, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         setAlbergues([...albergues, response.data.albergue]);
-        
+
         setLoading(false);
       }
       handleCloseModal();
@@ -187,7 +191,7 @@ export const Albergues = () => {
 
   if (loading) {
     return <Loading />; // Utiliza el nuevo componente de Loading
-}
+  }
 
   if (error) {
     return <div>Error: {error}</div>;
@@ -197,12 +201,14 @@ export const Albergues = () => {
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Albergues</h1>
-        <button
-          onClick={handleAddNew}
-          className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition duration-300 flex items-center"
-        >
-          <FaPlus className="mr-2" /> Agregar Albergue
-        </button>
+        {rol === 'admin_general' && (
+          <button
+            onClick={handleAddNew}
+            className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition duration-300 flex items-center"
+          >
+            <FaPlus className="mr-2" /> Agregar Albergue
+          </button>
+        )}
       </div>
 
       <div className="mb-4">
@@ -220,16 +226,16 @@ export const Albergues = () => {
             title={albergue.nombre}
             items={[
               { icon: FaUsers, text: `Población: ${albergue.ciudadanosCount} / ${albergue.capacidadCiudadanos}`, color: "blue" },
-              { icon: FaArrowRight, text: `${albergue.descripcion}`, color: "green" },
               { icon: FaWarehouse, text: `Bodegas: ${albergue.bodegasCount} / ${albergue.capacidadBodegas}`, color: "green" },
               { icon: FaUserTie, text: `Administradores: ${albergue.usuariosCount} / ${albergue.capacidadUsuarios}`, color: "purple" },
               { icon: FaMapMarkerAlt, text: `Ubicación: ${albergue.cordenadas_x}, ${albergue.cordenadas_y}`, color: "red" },
             ]}
             actions={[
-              { icon: FaBox, onClick: () => handleInspect(albergue._id), color: "green" },
-              { icon: FaEdit, onClick: () => handleEdit(albergue), color: "blue" },
-              { icon: FaTrash, onClick: () => handleDelete(albergue._id), color: "red" },
+              { icon: FaBox, onClick: () => handleInspect(albergue._id), color: "green", type: 'inspect' },
+              { icon: FaEdit, onClick: () => handleEdit(albergue), color: "blue", type: 'edit' },
+              { icon: FaTrash, onClick: () => handleDelete(albergue._id), color: "red", type: 'delete' },
             ]}
+            rol={rol} // pasar el rol como prop
           />
         ))}
       </div>
@@ -254,15 +260,6 @@ export const Albergues = () => {
           required
           validate={validations.nombre}
           label="Nombre del albergue"
-        />
-        <GenericInput
-          type="textarea"
-          name="descripcion"
-          value={editingAlbergue ? editingAlbergue.descripcion : newAlbergue.descripcion}
-          onChange={handleInputChange}
-          placeholder="Descripción (opcional)"
-          validate={validations.descripcion}
-          label="Descripción"
         />
         <GenericInput
           type="number"
