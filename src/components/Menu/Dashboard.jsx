@@ -136,8 +136,6 @@ export const Dashboard = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {console.log(filteredCiudadanos)}
-
                 {filteredCiudadanos.map((ciudadano, index) => (
                   <tr key={index}>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -171,7 +169,7 @@ export const Dashboard = () => {
                       </ul>
                     </td>
                     <td className="py-4 whitespace-nowrap">{ciudadano.telefono}</td>
-                    <td className="py-4 whitespace-nowrap">{ciudadano.domicilio.nombre}</td>
+                    <td className="py-4 whitespace-nowrap">{ciudadano.albergue ? ciudadano.albergue.nombre : 'No asignado'}</td>
                   </tr>
                 ))}
 

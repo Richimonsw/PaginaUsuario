@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Table, Form, Button, Modal, message, Input, Space, List, Typography } from 'antd';
-import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { Table, Form, Button, Modal, message, Input, Space, List, Typography, DatePicker, Upload, Tag, Popover, Tooltip, Avatar } from 'antd';
+import { EditOutlined, DeleteOutlined, PlusOutlined, UploadOutlined, MedicineBoxOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import moment from 'moment';
+import * as XLSX from 'xlsx';
 
 const { Text } = Typography;
 const API_BASE_URL = 'http://localhost:5000/api/enfermedad';
@@ -31,7 +33,8 @@ export const Enfermedades = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [editingEnfermedad, setEditingEnfermedad] = useState(null);
   const [form] = Form.useForm();
-
+  const [fileList, setFileList] = useState([]);
+  const [uploading, setUploading] = useState(false);
   useEffect(() => {
     fetchEnfermedades();
   }, []);
@@ -76,12 +79,17 @@ export const Enfermedades = () => {
 
   const handleSubmit = async (values) => {
     try {
-      // Filtrar los campos innecesarios de los medicamentos
-      const medicamentosFiltrados = values.medicamentos.map(({ nombre, descripcion }) => ({ nombre, descripcion }));
+      // Filtrar los campos innecesarios de los medicamentos y formatear la fecha
+      const medicamentosFiltrados = values.medicamentos.map(({ nombre, descripcion, codigo, fechaVencimiento }) => ({
+        nombre,
+        descripcion,
+        codigo,
+        fechaVencimiento: fechaVencimiento ? fechaVencimiento.format('YYYY-MM-DD') : null
+      }));
 
       const dataToSend = {
         ...values,
-        medicamentos: medicamentosFiltrados 
+        medicamentos: medicamentosFiltrados
       };
 
       if (editingEnfermedad) {
@@ -101,57 +109,195 @@ export const Enfermedades = () => {
     }
   };
 
+  const handleExcelUpload = async (file) => {
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
 
-  
+    try {
+      const response = await axiosInstance.post('http://localhost:5000/api/enfermedad/upload-excel', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      if (response.data.resultados) {
+        const successCount = response.data.resultados.filter(r => r.success).length;
+        const errorCount = response.data.resultados.filter(r => r.error).length;
+
+        message.success(`Archivo procesado. ${successCount} registros exitosos, ${errorCount} errores.`);
+
+        if (errorCount > 0) {
+          console.log('Errores:', response.data.resultados.filter(r => r.error));
+        }
+      } else {
+        message.success('Archivo Excel procesado con éxito');
+      }
+
+      fetchEnfermedades();
+    } catch (error) {
+      message.error('Error al procesar el archivo Excel');
+      console.error('Error:', error.response ? error.response.data : error.message);
+    } finally {
+      setUploading(false);
+      setFileList([]);
+    }
+
+    return false;
+  };
+
+  const MedicamentoTag = ({ medicamento }) => (
+    <Popover
+      content={
+        <List.Item.Meta
+          avatar={<Avatar icon={<MedicineBoxOutlined />} style={{ backgroundColor: '#1890ff' }} />}
+          title={medicamento.nombre}
+          description={
+            <>
+              <p><Text strong>Código:</Text> {medicamento.codigo}</p>
+              <p><Text strong>Descripción:</Text> {medicamento.descripcion}</p>
+              {medicamento.fechaVencimiento && (
+                <p><Text strong>Vence:</Text> {moment(medicamento.fechaVencimiento).format('DD/MM/YYYY')}</p>
+              )}
+            </>
+          }
+        />
+      }
+      title="Detalles del Medicamento"
+      trigger="click"
+    >
+      <Tag color="blue" style={{ margin: '2px', cursor: 'pointer' }}>
+        {medicamento.nombre}
+      </Tag>
+    </Popover>
+  );
+
   const columns = [
-    { title: 'Nombre', dataIndex: 'nombre', key: 'nombre' },
-    { title: 'Descripción', dataIndex: 'descripcion', key: 'descripcion' },
+    {
+      title: 'Nombre',
+      dataIndex: 'nombre',
+      key: 'nombre',
+      sorter: (a, b) => a.nombre.localeCompare(b.nombre),
+      render: (nombre) => <Text strong>{nombre}</Text>,
+    },
     {
       title: 'Medicamentos',
       dataIndex: 'medicamentos',
       key: 'medicamentos',
-      render: (medicamentos) => (
-        <List
-          size="small"
-          dataSource={medicamentos}
-          renderItem={item => (
-            <List.Item style={{ padding: '4px 0' }}>
-              <Text strong>{item.nombre}: </Text>
-              <Text>{item.descripcion}</Text>
-            </List.Item>
-          )}
-        />
-      )
+      render: (medicamentos) => {
+        const displayedMeds = medicamentos.slice(0, 3);
+        const remainingMeds = medicamentos.slice(3);
+
+        return (
+          <Space wrap>
+            {displayedMeds.map((med) => (
+              <MedicamentoTag key={med._id} medicamento={med} />
+            ))}
+            {remainingMeds.length > 0 && (
+              <Popover
+                content={
+                  <List
+                    itemLayout="horizontal"
+                    dataSource={remainingMeds}
+                    renderItem={(item) => (
+                      <MedicamentoTag key={item._id} medicamento={item} />
+                    )}
+                  />
+                }
+                title={`${remainingMeds.length} más medicamentos`}
+                trigger="click"
+              >
+                <Tag color="cyan" style={{ cursor: 'pointer' }}>
+                  +{remainingMeds.length} más
+                </Tag>
+              </Popover>
+            )}
+          </Space>
+        );
+      },
     },
     {
       title: 'Acciones',
       key: 'acciones',
+      fixed: 'right',
+      width: 100,
       render: (_, record) => (
-        <>
-          <Button icon={<EditOutlined />} onClick={() => handleEdit(record)} />
-          <Button icon={<DeleteOutlined />} onClick={() => handleDelete(record._id)} danger />
-        </>
-      )
-    }
+        <Space size="middle">
+          <Tooltip title="Editar">
+            <Button
+              icon={<EditOutlined />}
+              onClick={() => handleEdit(record)}
+              type="primary"
+              shape="circle"
+              size="small"
+            />
+          </Tooltip>
+          <Tooltip title="Eliminar">
+            <Button
+              icon={<DeleteOutlined />}
+              onClick={() => handleDelete(record._id)}
+              danger
+              shape="circle"
+              size="small"
+            />
+          </Tooltip>
+        </Space>
+      ),
+    },
   ];
 
   return (
     <div style={{ padding: '20px' }}>
       <h1>Gestión de Enfermedades y Medicamentos</h1>
-      <Button
-        type="primary"
-        icon={<PlusOutlined />}
-        onClick={() => setModalVisible(true)}
-        style={{ marginBottom: '20px' }}
-      >
-        Añadir Enfermedad
-      </Button>
+      <Space style={{ marginBottom: '20px' }}>
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={() => setModalVisible(true)}
+        >
+          Añadir Enfermedad
+        </Button>
+        <Upload
+          accept=".xlsx,.xls"
+          beforeUpload={handleExcelUpload}
+          fileList={fileList}
+          onChange={({ fileList }) => setFileList(fileList)}
+          onRemove={() => setFileList([])}
+          multiple={false}
+        >
+          <Button
+            icon={<UploadOutlined />}
+            loading={uploading}
+            disabled={fileList.length > 0}
+          >
+            {uploading ? 'Subiendo...' : 'Subir Excel'}
+          </Button>
+        </Upload>
+      </Space>
       <Table
-        dataSource={enfermedades}
         columns={columns}
+        dataSource={enfermedades}
         rowKey="_id"
-        responsive
-        scroll={{ x: true }}
+        pagination={{
+          pageSize: 10,
+          responsive: true,
+          showSizeChanger: true,
+          showQuickJumper: true,
+        }}
+        scroll={{ x: 'max-content' }}
+        expandable={{
+          expandedRowRender: (record) => (
+            <p style={{ margin: 0 }}>
+              <Text strong>Descripción:</Text> {record.descripcion}
+            </p>
+          ),
+          expandIcon: ({ expanded, onExpand, record }) =>
+            expanded ? (
+              <InfoCircleOutlined onClick={e => onExpand(record, e)} />
+            ) : (
+              <InfoCircleOutlined onClick={e => onExpand(record, e)} />
+            )
+        }}
       />
       <Modal
         title={editingEnfermedad ? "Editar Enfermedad" : "Añadir Enfermedad"}
@@ -175,7 +321,7 @@ export const Enfermedades = () => {
             {(fields, { add, remove }) => (
               <>
                 {fields.map((field, index) => (
-                  <Space key={field.key} style={{ display: 'flex', marginBottom: 8 }} align="baseline">
+                  <Space key={field.key} style={{ display: 'flex', marginBottom: 8 }} align="baseline" wrap>
                     <Form.Item
                       {...field}
                       name={[field.name, 'nombre']}
@@ -191,6 +337,21 @@ export const Enfermedades = () => {
                       rules={[{ required: true, message: 'Falta la descripción del medicamento' }]}
                     >
                       <Input placeholder="Descripción del medicamento" />
+                    </Form.Item>
+                    <Form.Item
+                      {...field}
+                      name={[field.name, 'codigo']}
+                      fieldKey={[field.fieldKey, 'codigo']}
+                      rules={[{ required: true, message: 'Falta el código del medicamento' }]}
+                    >
+                      <Input placeholder="Código del medicamento" />
+                    </Form.Item>
+                    <Form.Item
+                      {...field}
+                      name={[field.name, 'fechaVencimiento']}
+                      fieldKey={[field.fieldKey, 'fechaVencimiento']}
+                    >
+                      <DatePicker placeholder="Fecha de vencimiento" />
                     </Form.Item>
                     <Button type="link" onClick={() => remove(field.name)} icon={<DeleteOutlined />}>
                       Eliminar

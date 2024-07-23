@@ -72,6 +72,7 @@ export const Productos = () => {
       title: 'Fecha de caducidad',
       dataIndex: 'fechaVencimiento',
       key: 'fechaVencimiento',
+      render: (text) => formatDate(text),
     },
     {
       title: 'Acciones',
@@ -88,6 +89,15 @@ export const Productos = () => {
       ),
     },
   ];
+
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${month}/${day}/${year}`;
+  };
 
   const handleSearch = (value) => {
     setSearchText(value);
@@ -121,17 +131,22 @@ export const Productos = () => {
     form.validateFields().then(async (values) => {
       try {
         const token = localStorage.getItem('token');
+        const formattedValues = {
+          ...values,
+          fechaVencimiento: values.fechaVencimiento ? new Date(values.fechaVencimiento).toISOString().split('T')[0] : null
+        };
         if (values._id) {
           // Actualizar producto existente
-          await axios.put(`http://localhost:5000/api/productos/${values._id}`,
-            { ...values, bodega: bodegaId },
+          const { _id, ...productData } = formattedValues; // Extraemos _id y el resto de los datos
+          await axios.put(`http://localhost:5000/api/productos/${_id}`,
+            { ...productData, bodega: bodegaId },
             { headers: { Authorization: `Bearer ${token}` } }
           );
           message.success('Producto actualizado con éxito');
         } else {
           // Crear nuevo producto
           await axios.post('http://localhost:5000/api/productos/register',
-            { ...values, bodega: bodegaId },
+            { ...formattedValues, bodega: bodegaId },
             { headers: { Authorization: `Bearer ${token}` } }
           );
           message.success('Producto creado con éxito');
