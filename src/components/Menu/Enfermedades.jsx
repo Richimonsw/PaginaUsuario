@@ -70,7 +70,7 @@ export const Enfermedades = () => {
       medicamentos: enfermedad.medicamentos.map(({ _id, nombre, descripcion }) => ({
         key: _id, // Usamos _id como key para el formulario, pero no lo enviamos al backend
         nombre,
-        descripcion
+        descripcion,
       }))
     });
     setModalVisible(true);
