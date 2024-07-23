@@ -49,9 +49,14 @@ export const Productos = () => {
         record.nombre.toLowerCase().includes(value.toLowerCase()),
     },
     {
-      title: 'Stock',
-      dataIndex: 'stock',
-      key: 'stock',
+      title: 'Stock Minimo',
+      dataIndex: 'stockMin',
+      key: 'stockMin',
+    },
+    {
+      title: 'Stock Maximo',
+      dataIndex: 'stockMax',
+      key: 'stockMax',
     },
     {
       title: 'Descripción',
@@ -178,7 +183,10 @@ export const Productos = () => {
           <Form.Item name="nombre" label="Nombre" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
-          <Form.Item name="stock" label="Stock" rules={[{ required: true }]}>
+          <Form.Item name="stockMin" label="Stock Minimo" rules={[{ required: true }]}>
+            <Input type="number" />
+          </Form.Item>
+          <Form.Item name="stockMax" label="Stock Maximo" rules={[{ required: true }]}>
             <Input type="number" />
           </Form.Item>
           <Form.Item name="descripcion" label="Descripción">

@@ -1,12 +1,19 @@
-import React from 'react'
+import React, { useState } from 'react';
 import { FormField } from '../components/FormField';
 import { formConfig } from '../components/Login/formConfig';
 import { useFormLogin } from '../hooks/useFormLogin';
 import bgImage from '../assets/cotopaxi_inicio.jpg';
 import logoImage from '../assets/volcan.jpg';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 export const Login = () => {
-    const { register, handleSubmit, errors, onSubmit } = useFormLogin();
+    const { register, handleSubmit, errors, onSubmit, loginError } = useFormLogin();
+    const [showPassword, setShowPassword] = useState(false);
+
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword);
+    };
+
     return (
         <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-cover bg-center bg-no-repeat"
              style={{ backgroundImage: `url(${bgImage})` }}>
@@ -25,11 +32,35 @@ export const Login = () => {
                         <div className="rounded-md shadow-sm -space-y-px">
                             {formConfig.map((field) => (
                                 <div key={field.name} className="mb-3 sm:mb-4">
-                                    <FormField
-                                        {...field}
-                                        register={register}
-                                        errors={errors}
-                                    />
+                                    {field.name === 'password' ? (
+                                        <div className="relative">
+                                            <FormField
+                                                {...field}
+                                                type={showPassword ? 'text' : 'password'}
+                                                register={register}
+                                                errors={errors}
+                                            />
+                                            <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                                <button
+                                                    type="button"
+                                                    onClick={togglePasswordVisibility}
+                                                    className="text-gray-500"
+                                                >
+                                                    {showPassword ? (
+                                                        <FaEyeSlash className="h-5 w-5" aria-hidden="true" />
+                                                    ) : (
+                                                        <FaEye className="h-5 w-5" aria-hidden="true" />
+                                                    )}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <FormField
+                                            {...field}
+                                            register={register}
+                                            errors={errors}
+                                        />
+                                    )}
                                 </div>
                             ))}
                         </div>
@@ -42,9 +73,10 @@ export const Login = () => {
                                 Iniciar Sesión
                             </button>
                         </div>
+                        {loginError && <p className="text-red-500 text-center mt-4">{loginError}</p>}
                     </form>
                 </div>
             </div>
         </div>
-    )
-}
+    );
+};

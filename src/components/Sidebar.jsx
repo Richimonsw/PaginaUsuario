@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
   FaBars, FaTimes, FaUsers, FaHouseUser, FaShieldAlt, FaWarehouse, FaSignOutAlt, FaHome, FaUserMd
@@ -6,7 +6,16 @@ import {
 
 export const Sidebar = ({ onLogout }) => {
   const [isOpen, setIsOpen] = useState(false);
-  
+  const [rol, setRol] = useState('');
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const decodedToken = JSON.parse(atob(token.split('.')[1]));
+      setRol(decodedToken.rol);
+    }
+  }, []);
+
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
   };
@@ -47,24 +56,41 @@ export const Sidebar = ({ onLogout }) => {
         </div>
 
         <nav className="flex flex-col w-full px-4 flex-grow text-sm">
-          <NavLink to="/menu/Personal" className={({ isActive }) => getNavLinkClass(isActive)} onClick={handleNavLinkClick}>
-            <FaUsers className="mr-3" /> Personal
-          </NavLink>
-          <NavLink to="/menu/Albergues" className={({ isActive }) => getNavLinkClass(isActive)} onClick={handleNavLinkClick}>
-            <FaHouseUser className="mr-3" /> Albergues
-          </NavLink>
-          <NavLink to="/menu/Sitios-seguros" className={({ isActive }) => getNavLinkClass(isActive)} onClick={handleNavLinkClick}>
-            <FaShieldAlt className="mr-3" /> Sitios Seguros
-          </NavLink>
-          <NavLink to="/menu/Domicilios" className={({ isActive }) => getNavLinkClass(isActive)} onClick={handleNavLinkClick}>
-            <FaHome className="mr-3" /> Domicilios
-          </NavLink>
-          <NavLink to="/menu/Bodegas" className={({ isActive }) => getNavLinkClass(isActive)} onClick={handleNavLinkClick}>
-            <FaWarehouse className="mr-3" /> Bodegas
-          </NavLink>
-          <NavLink to="/menu/Enfermedades" className={({ isActive }) => getNavLinkClass(isActive)} onClick={handleNavLinkClick}>
-            <FaUserMd className="mr-3" /> Enfermedades
-          </NavLink>
+          {rol === 'admin_general' && (
+            <>
+              <NavLink to="/menu/Dashboard" className={({ isActive }) => getNavLinkClass(isActive)} onClick={handleNavLinkClick}>
+                <FaUsers className="mr-3" /> Datos Recolectados
+              </NavLink>
+              <NavLink to="/menu/Personal" className={({ isActive }) => getNavLinkClass(isActive)} onClick={handleNavLinkClick}>
+                <FaUsers className="mr-3" /> Personal
+              </NavLink>
+              <NavLink to="/menu/Sitios-seguros" className={({ isActive }) => getNavLinkClass(isActive)} onClick={handleNavLinkClick}>
+                <FaShieldAlt className="mr-3" /> Sitios Seguros
+              </NavLink>
+              <NavLink to="/menu/Bodegas" className={({ isActive }) => getNavLinkClass(isActive)} onClick={handleNavLinkClick}>
+                <FaWarehouse className="mr-3" /> Bodegas
+              </NavLink>
+              <NavLink to="/menu/Domicilios" className={({ isActive }) => getNavLinkClass(isActive)} onClick={handleNavLinkClick}>
+                <FaHome className="mr-3" /> Zonas de Riesgo
+              </NavLink>
+
+            </>
+          )}
+
+          {(rol === 'admin_farmaceutico' || rol === 'admin_zonal' || rol === 'admin_general') && (
+            <>
+              <NavLink to="/menu/Albergues" className={({ isActive }) => getNavLinkClass(isActive)} onClick={handleNavLinkClick}>
+                <FaHouseUser className="mr-3" /> Albergues
+              </NavLink>
+              
+
+              <NavLink to="/menu/Enfermedades" className={({ isActive }) => getNavLinkClass(isActive)} onClick={handleNavLinkClick}>
+                <FaUserMd className="mr-3" /> Enfermedades
+              </NavLink>
+            </>
+          )}
+
+
         </nav>
         <div className="w-full px-4 pb-4 mt-auto">
           <button

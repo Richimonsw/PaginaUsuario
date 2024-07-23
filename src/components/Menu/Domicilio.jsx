@@ -14,8 +14,7 @@ export const Domicilio = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newDomicilio, setNewDomicilio] = useState({
     nombre: '',
-    cordenadas_x: '',
-    cordenadas_y: '',
+    zonaDeRiesgo: '',
   });
   const [editingDomicilio, setEditingDomicilio] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -28,14 +27,8 @@ export const Domicilio = () => {
       if (!/^[a-zA-Z0-9\s]+$/.test(value)) return "El nombre solo puede contener letras, números y espacios";
       return null;
     },
-    cordenadas_x: (value) => {
-      const num = parseFloat(value);
-      if (isNaN(num)) return "La coordenada X debe ser un número";
-      return null;
-    },
-    cordenadas_y: (value) => {
-      const num = parseFloat(value);
-      if (isNaN(num)) return "La coordenada Y debe ser un número";
+    zonaDeRiesgo: (value) => {
+      if (!value) return "Debe seleccionar una opción";
       return null;
     }
   };
@@ -73,8 +66,8 @@ export const Domicilio = () => {
   };
 
   const handleEdit = (domicilio) => {
-    const { nombre, cordenadas_x, cordenadas_y } = domicilio;
-    setEditingDomicilio({ nombre, cordenadas_x, cordenadas_y, id: domicilio._id });
+    const { nombre, zonaDeRiesgo } = domicilio;
+    setEditingDomicilio({ nombre, zonaDeRiesgo, id: domicilio._id });
     setIsModalOpen(true);
   };
 
@@ -98,11 +91,11 @@ export const Domicilio = () => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setEditingDomicilio(null);
-    setNewDomicilio({ nombre: '', cordenadas_x: '', cordenadas_y: '' });
+    setNewDomicilio({ nombre: '', zonaDeRiesgo: '' });
   };
 
   const handleInputChange = (name, value) => {
-    const newData = editingDomicilio ? { ...editingDomicilio, [name]: value } : { ...newDomicilio, [name]: value }; 
+    const newData = editingDomicilio ? { ...editingDomicilio, [name]: value } : { ...newDomicilio, [name]: value };
 
     if (editingDomicilio) {
       setEditingDomicilio(newData);
@@ -158,12 +151,12 @@ export const Domicilio = () => {
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Domicilios</h1>
+        <h1 className="text-2xl font-bold">Zonas de Riesgo</h1>
         <button
           onClick={handleAddNew}
           className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition duration-300 flex items-center"
         >
-          <FaPlus className="mr-2" /> Agregar Domicilio
+          <FaPlus className="mr-2" /> Agregar Zona de Riesgo
         </button>
       </div>
 
@@ -181,7 +174,7 @@ export const Domicilio = () => {
             key={domicilio._id}
             title={domicilio.nombre}
             items={[
-              { icon: FaMapMarkerAlt, text: `Ubicación: ${domicilio.cordenadas_x}, ${domicilio.cordenadas_y}`, color: "red" },
+              { icon: FaMapMarkerAlt, text: `Zona de riesgo: ${domicilio.zonaDeRiesgo}`, color: "red" },
             ]}
             actions={[
               { icon: FaEdit, onClick: () => handleEdit(domicilio), color: "blue" },
@@ -192,14 +185,14 @@ export const Domicilio = () => {
       </div>
 
       {filteredDomicilios.length === 0 && (
-        <p className="text-center text-gray-500 mt-4">No se encontraron domicilioS.</p>
+        <p className="text-center text-gray-500 mt-4">No se encontraron zonas de riesgo.</p>
       )}
 
 
       <FormModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        title={editingDomicilio ? "Editar Domicilio" : "Agregar Nuevo Domicilio"}
+        title={editingDomicilio ? "Editar Zona de Riesgo" : "Agregar Nueva Zona de Riesgo"}
         onSubmit={handleSubmit}
       >
         <GenericInput
@@ -213,25 +206,20 @@ export const Domicilio = () => {
           label="Nombre del albergue"
         />
         <GenericInput
-          type="number"
-          name="cordenadas_x"
-          value={editingDomicilio ? editingDomicilio.cordenadas_x : newDomicilio.cordenadas_x}
+          type="select"
+          name="zonaDeRiesgo"
+          value={editingDomicilio ? editingDomicilio.zonaDeRiesgo : newDomicilio.zonaDeRiesgo}
           onChange={handleInputChange}
-          placeholder="Coordenada X"
+          placeholder="Seleccionar zona de riesgo"
           required
-          validate={validations.cordenadas_x}
-          label="Coordenada X"
-        />
-        <GenericInput
-          type="number"
-          name="cordenadas_y"
-          value={editingDomicilio ? editingDomicilio.cordenadas_y : newDomicilio.cordenadas_y}  
-          onChange={handleInputChange}
-          placeholder="Coordenada Y"
-          required
-          validate={validations.cordenadas_y}
-          label="Coordenada Y"
-        />
+          validate={validations.zonaDeRiesgo}
+          label="Zona de riesgo"
+        >
+          <option value="">Seleccione una opción</option>
+          <option value="TRUE">Sí</option>
+          <option value="False">No</option>
+
+        </GenericInput>
       </FormModal>
     </div>
   );

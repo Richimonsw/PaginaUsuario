@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaArrowRight, FaUsers, FaPlus, FaEdit, FaTrash,FaBox  } from 'react-icons/fa';
+import { FaArrowRight, FaUsers, FaPlus, FaEdit, FaTrash,FaBox, FaExclamationCircle, FaCheckCircle } from 'react-icons/fa';
 import { Card } from '../Card';
 import { FormModal } from '../FormModal';
 import { GenericInput } from '../GenericInput';
@@ -16,7 +16,6 @@ export const Bodegas = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newBodega, setNewBodega] = useState({
     nombre: '',
-    descripcion: '',
     categoria: '',
     capacidad: '',
     albergue: ''
@@ -25,6 +24,15 @@ export const Bodegas = () => {
   const [albergues, setAlbergues] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [rol, setRol] = useState('');
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const decodedToken = JSON.parse(atob(token.split('.')[1]));
+      setRol(decodedToken.rol);
+    }
+  }, []);
 
   const validations = {
     nombre: (value) => {
@@ -97,8 +105,8 @@ export const Bodegas = () => {
   };
 
   const handleEdit = (bodega) => {
-    const { nombre, descripcion, categoria, capacidad, albergue } = bodega;
-    setEditingBodega({ nombre, descripcion, categoria, capacidad, albergue, id: bodega._id });
+    const { nombre, categoria, capacidad, albergue } = bodega;
+    setEditingBodega({ nombre, categoria, capacidad, albergue, id: bodega._id });
     setIsModalOpen(true);
   };
 
@@ -122,7 +130,7 @@ export const Bodegas = () => {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setEditingBodega(null);
-    setNewBodega({ nombre: '', descripcion: '', categoria: '', capacidad: '', albergue: '' });
+    setNewBodega({ nombre: '', categoria: '', capacidad: '', albergue: '' });
   };
 
   const handleInputChange = (name, value) => {
@@ -184,16 +192,24 @@ export const Bodegas = () => {
     return <div>Error: {error}</div>;
   }
 
+  const getAlertColor = (alerta) => {
+    if (alerta === "Crítico: La bodega está casi llena") return "red";
+    if (alerta === "Advertencia: La bodega está llegando a su capacidad máxima") return "yellow";
+    return "green";
+  };
+
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Bodegas</h1>
-        <button
-          onClick={handleAddNew}
-          className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition duration-300 flex items-center"
-        >
-          <FaPlus className="mr-2" /> Agregar Bodega
-        </button>
+        {rol === 'admin_general' && (
+          <button
+            onClick={handleAddNew}
+            className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition duration-300 flex items-center"
+          >
+            <FaPlus className="mr-2" /> Agregar Bodega
+          </button>
+        )}
       </div>
 
       <div className="mb-4">
@@ -211,15 +227,21 @@ export const Bodegas = () => {
             title={bodega.nombre}
             items={[
               { icon: FaUsers, text: `Albergue: ${bodega.albergue.nombre}`, color: "blue" },
-              { icon: FaArrowRight, text: `${bodega.descripcion}`, color: "green" },
               { icon: FaArrowRight, text: `Categoria: ${bodega.categoria}`, color: "green" },
               { icon: FaArrowRight, text: `Capacidad: ${bodega.capacidad}`, color: "green" },
+              { icon: FaBox, text: `Productos: ${bodega.cantidadProductos}`, color: "blue" },
+              { 
+                icon: bodega.alerta ? FaExclamationCircle : FaCheckCircle, 
+                text: bodega.alerta || "Bodega estable", 
+                color: getAlertColor(bodega.alerta) 
+              }
             ]}
             actions={[
-              { icon: FaBox, onClick: () => handleInspect(bodega._id), color: "green" },
-              { icon: FaEdit, onClick: () => handleEdit(bodega), color: "blue" },
-              { icon: FaTrash, onClick: () => handleDelete(bodega._id), color: "red" }
+              { icon: FaBox, onClick: () => handleInspect(bodega._id), color: "green" , type: 'inspect' },
+              { icon: FaEdit, onClick: () => handleEdit(bodega), color: "blue", type: 'edit' },
+              { icon: FaTrash, onClick: () => handleDelete(bodega._id), color: "red", type: 'delete' },
             ]}
+            rol={rol}
           />
         ))}
       </div>
@@ -244,15 +266,6 @@ export const Bodegas = () => {
           required
           validate={validations.nombre}
           label="Nombre de la bodega"
-        />
-        <GenericInput
-          type="textarea"
-          name="descripcion"
-          value={editingBodega ? editingBodega.descripcion : newBodega.descripcion}
-          onChange={handleInputChange}
-          placeholder="Descripción (opcional)"
-          validate={validations.descripcion}
-          label="Descripción"
         />
         <GenericInput
           type="text"
