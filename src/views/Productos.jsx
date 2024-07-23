@@ -59,9 +59,19 @@ export const Productos = () => {
       key: 'stockMax',
     },
     {
+      title: 'Codigo',
+      dataIndex: 'codigo',
+      key: 'codigo',
+    },
+    {
       title: 'Descripción',
       dataIndex: 'descripcion',
       key: 'descripcion',
+    },
+    {
+      title: 'Fecha de caducidad',
+      dataIndex: 'fechaVencimiento',
+      key: 'fechaVencimiento',
     },
     {
       title: 'Acciones',
@@ -189,8 +199,14 @@ export const Productos = () => {
           <Form.Item name="stockMax" label="Stock Maximo" rules={[{ required: true }]}>
             <Input type="number" />
           </Form.Item>
+          <Form.Item name="codigo" label="Codigo" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
           <Form.Item name="descripcion" label="Descripción">
             <Input.TextArea />
+          </Form.Item>
+          <Form.Item name="fechaVencimiento" label="Fecha de vencimiento" rules={[{ required: true }]}>
+            <Input type="date" />
           </Form.Item>
         </Form>
       </Modal>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { FaWarehouse, FaShieldAlt, FaUsers, FaHouseUser, FaSearch } from 'react-icons/fa';
+import { FaWarehouse, FaShieldAlt, FaUsers, FaHouseUser, FaSearch, FaTimesCircle, FaCheckCircle } from 'react-icons/fa';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { useNavigate } from 'react-router-dom';
 
@@ -124,7 +124,8 @@ export const Dashboard = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                  <th className=" py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
                   <th className=" py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cedula</th>
                   <th className=" py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Edad</th>
                   <th className=" py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
@@ -135,14 +136,29 @@ export const Dashboard = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
+                {console.log(filteredCiudadanos)}
+
                 {filteredCiudadanos.map((ciudadano, index) => (
                   <tr key={index}>
-                    <td className="px-6 py-4 whitespace-nowrap">{ciudadano.nombre}  {ciudadano.apellido}</td>
-                    <td className=" py-4 whitespace-nowrap">{ciudadano.cedula}</td>
-                    <td className=" py-4 whitespace-nowrap">{ciudadano.edad}</td>
-                    <td className=" py-4 whitespace-nowrap">{ciudadano.email}</td>
-                    <td className=" py-4 whitespace-nowrap">{ciudadano.enfermedades}</td>
-                    <td className=" py-4">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {ciudadano.salvaldo ? (
+                        <>
+                          <FaCheckCircle className="text-green-500" />
+                          <p className="text-green-500">Salvado</p>
+                        </>
+                      ) : (
+                        <>
+                          <FaTimesCircle className="text-red-500" />
+                          <p className="text-red-500">No salvado</p>
+                        </>
+                      )}
+                    </td>
+                    <td className="py-4 whitespace-nowrap">{ciudadano.nombre} {ciudadano.apellido}</td>
+                    <td className="py-4 whitespace-nowrap">{ciudadano.cedula}</td>
+                    <td className="py-4 whitespace-nowrap">{ciudadano.edad}</td>
+                    <td className="py-4 whitespace-nowrap">{ciudadano.email}</td>
+                    <td className="py-4 whitespace-nowrap">{ciudadano.enfermedades.join(', ')}</td>
+                    <td className="py-4">
                       <ul className="list-disc list-inside">
                         {ciudadano.medicamentos.slice(0, 3).map((medicamento, index) => (
                           <li key={index} className="text-sm text-gray-700">{medicamento}</li>
@@ -154,10 +170,11 @@ export const Dashboard = () => {
                         )}
                       </ul>
                     </td>
-                    <td className=" py-4 whitespace-nowrap">{ciudadano.telefono}</td>
-                    <td className=" py-4 whitespace-nowrap">{ciudadano.albergue}</td>
+                    <td className="py-4 whitespace-nowrap">{ciudadano.telefono}</td>
+                    <td className="py-4 whitespace-nowrap">{ciudadano.domicilio.nombre}</td>
                   </tr>
                 ))}
+
               </tbody>
             </table>
           </div>
