@@ -80,11 +80,10 @@ export const Enfermedades = () => {
   const handleSubmit = async (values) => {
     try {
       // Filtrar los campos innecesarios de los medicamentos y formatear la fecha
-      const medicamentosFiltrados = values.medicamentos.map(({ nombre, descripcion, codigo, fechaVencimiento }) => ({
+      const medicamentosFiltrados = values.medicamentos.map(({ nombre, descripcion, codigo }) => ({
         nombre,
         descripcion,
-        codigo,
-        fechaVencimiento: fechaVencimiento ? fechaVencimiento.format('YYYY-MM-DD') : null
+        codigo
       }));
 
       const dataToSend = {
@@ -156,9 +155,6 @@ export const Enfermedades = () => {
             <>
               <p><Text strong>Código:</Text> {medicamento.codigo}</p>
               <p><Text strong>Descripción:</Text> {medicamento.descripcion}</p>
-              {medicamento.fechaVencimiento && (
-                <p><Text strong>Vence:</Text> {moment(medicamento.fechaVencimiento).format('DD/MM/YYYY')}</p>
-              )}
             </>
           }
         />
@@ -345,14 +341,7 @@ export const Enfermedades = () => {
                       rules={[{ required: true, message: 'Falta el código del medicamento' }]}
                     >
                       <Input placeholder="Código del medicamento" />
-                    </Form.Item>
-                    <Form.Item
-                      {...field}
-                      name={[field.name, 'fechaVencimiento']}
-                      fieldKey={[field.fieldKey, 'fechaVencimiento']}
-                    >
-                      <DatePicker placeholder="Fecha de vencimiento" />
-                    </Form.Item>
+                    </Form.Item> 
                     <Button type="link" onClick={() => remove(field.name)} icon={<DeleteOutlined />}>
                       Eliminar
                     </Button>
