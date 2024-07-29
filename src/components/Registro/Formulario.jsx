@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { formConfig } from './formConfig';
 import { FormField } from '../FormField';
 import { useFormRegistro } from '../../hooks/useFormRegistro';

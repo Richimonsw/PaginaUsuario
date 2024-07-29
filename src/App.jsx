@@ -15,7 +15,7 @@ import { Contenido } from './views/Albergues/Contenido';
 import { Enfermedades } from './components/Menu/Enfermedades';
 import { Dashboard } from './components/Menu/Dashboard';
 import ProtectedRoute from './Services/ProtectedRoute';
-import { useEffect } from 'react';
+import { RegistroCiudadano } from './views/RegistroCiudadano';
 import RoleProtectedRoute from './Services/RoleProtectedRoute';
 
 const protectedRoute = (Component) => (
@@ -103,6 +103,14 @@ function App() {
             element={
               <RoleProtectedRoute allowedRoles={['admin_general', 'admin_farmaceutico', 'admin_zonal']}>
                 <Enfermedades />
+              </RoleProtectedRoute>
+            }
+          />
+          <Route
+            path="Registros"
+            element={
+              <RoleProtectedRoute allowedRoles={['admin_farmaceutico', 'admin_zonal']}>
+                <RegistroCiudadano />
               </RoleProtectedRoute>
             }
           />

@@ -1,21 +1,27 @@
-import { useForm } from 'react-hook-form';
-import axios from 'axios';
-import QRCode from 'qrcode';
-import { useEffect, useState } from 'react';
+import { useForm } from "react-hook-form";
+import axios from "axios";
+import QRCode from "qrcode";
+import { useEffect, useState } from "react";
 
 export const useFormRegistro = () => {
-  const { register, handleSubmit, formState: { errors }, reset, watch } = useForm({
-    mode: 'onChange',
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+    watch,
+  } = useForm({
+    mode: "onChange",
     defaultValues: {
-      nombre: '',
-      apellido: '',
-      cedula: '',
-      email: '',
-      edad: '',
-      telefono: '',
-      enfermedades: '',
+      nombre: "",
+      apellido: "",
+      cedula: "",
+      email: "",
+      edad: "",
+      telefono: "",
+      enfermedades: "",
       medicamentos: [],
-      domicilio: '',
+      domicilio: "",
     },
   });
 
@@ -29,19 +35,23 @@ export const useFormRegistro = () => {
   useEffect(() => {
     const fetchDomicilios = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/domicilios');
+        const response = await axios.get(
+          "http://localhost:5000/api/domicilios"
+        );
         setDomicilios(response.data);
       } catch (error) {
-        console.error('Error fetching domicilios:', error);
+        console.error("Error fetching domicilios:", error);
       }
     };
 
     const fetchEnfermedades = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/enfermedad');
+        const response = await axios.get(
+          "http://localhost:5000/api/enfermedad"
+        );
         setEnfermedades(response.data);
       } catch (error) {
-        console.error('Error fetching enfermedades:', error);
+        console.error("Error fetching enfermedades:", error);
       }
     };
 
@@ -49,10 +59,12 @@ export const useFormRegistro = () => {
     fetchDomicilios();
   }, []);
 
-  const selectedEnfermedad = watch('enfermedades');
+  const selectedEnfermedad = watch("enfermedades");
   useEffect(() => {
     if (selectedEnfermedad) {
-      const enfermedad = enfermedades.find(e => e.nombre === selectedEnfermedad);
+      const enfermedad = enfermedades.find(
+        (e) => e.nombre === selectedEnfermedad
+      );
       if (enfermedad) {
         setMedicamentos(enfermedad.medicamentos);
       }
@@ -67,28 +79,74 @@ export const useFormRegistro = () => {
     setSubmitSuccess(false);
 
     try {
-      const qrData = JSON.stringify(data);
-      const qrImage = await QRCode.toDataURL(qrData);
+      const token = localStorage.getItem("token");
+      if (!token) {
+        const qrData = JSON.stringify(data);
+        const qrImage = await QRCode.toDataURL(qrData);
 
-      const cloudinaryResponse = await axios.post('https://api.cloudinary.com/v1_1/dlyytqayv/image/upload', {
-        file: qrImage,
-        upload_preset: 'QRCotopaxi'
-      });
+        const cloudinaryResponse = await axios.post(
+          "https://api.cloudinary.com/v1_1/dlyytqayv/image/upload",
+          {
+            file: qrImage,
+            upload_preset: "QRCotopaxi",
+          }
+        );
 
-      const personaResponse = await axios.post('http://localhost:5000/api/ciudadano/register', {
-        ...data,
-        qrURL: cloudinaryResponse.data.secure_url
-      });
+        const personaResponse = await axios.post(
+          "http://localhost:5000/api/ciudadano/register",
+          {
+            ...data,
+            qrURL: cloudinaryResponse.data.secure_url,
+          }
+        );
+      } else {
+        const qrData = JSON.stringify(data);
+        const qrImage = await QRCode.toDataURL(qrData);
+
+        const cloudinaryResponse = await axios.post(
+          "https://api.cloudinary.com/v1_1/dlyytqayv/image/upload",
+          {
+            file: qrImage,
+            upload_preset: "QRCotopaxi",
+          }
+        );
+
+        const personaResponse = await axios.post(
+          "http://localhost:5000/api/ciudadano/registerUser",
+          {
+            ...data,
+            qrURL: cloudinaryResponse.data.secure_url,
+          },
+          {
+            headers: { 'Authorization': `Bearer ${token}` },
+          }
+        );
+      }
 
       reset();
       setSubmitSuccess(true);
     } catch (error) {
-      setSubmitError(error.response?.data?.error || 'Hubo un error al procesar la solicitud. Por favor, inténtelo de nuevo.');
+      setSubmitError(
+        error.response?.data?.error ||
+          "Hubo un error al procesar la solicitud. Por favor, inténtelo de nuevo."
+      );
       console.error(error);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  return { register, handleSubmit, errors, onSubmit, domicilios, enfermedades, medicamentos, isSubmitting, submitError, submitSuccess, watch };
+  return {
+    register,
+    handleSubmit,
+    errors,
+    onSubmit,
+    domicilios,
+    enfermedades,
+    medicamentos,
+    isSubmitting,
+    submitError,
+    submitSuccess,
+    watch,
+  };
 };
