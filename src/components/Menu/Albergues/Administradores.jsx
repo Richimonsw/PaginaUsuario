@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Card } from '../../Card';
-import { FaUsers, FaArrowRight, FaWarehouse, FaUserTie, FaBox, FaExclamationCircle } from 'react-icons/fa';
+import { FaRegEnvelope, FaAddressCard, FaPhoneAlt, FaUserTie, FaBox, FaExclamationCircle } from 'react-icons/fa';
 import Loading from '../../Loading';
 
 
@@ -17,7 +17,6 @@ export const Administradores = ({ albergueId }) => {
     const fetchAdministradores = async () => {
         try {
             const token = localStorage.getItem('token');
-            console.log(albergueId);
             const response = await axios.get(`http://localhost:5000/api/usuario/${albergueId}/albergue`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -57,9 +56,9 @@ export const Administradores = ({ albergueId }) => {
                             key={administrador._id}
                             title={`${administrador.nombre} ${administrador.apellido}`}
                             items={[
-                                { icon: FaUsers, text: `${administrador.email}`, color: "blue" },
-                                { icon: FaArrowRight, text: `${administrador.cedula}`, color: "green" },
-                                { icon: FaWarehouse, text: `${administrador.telefono}`, color: "green" },
+                                { icon: FaRegEnvelope, text: `${administrador.email}`, color: "blue" },
+                                { icon: FaAddressCard, text: `${administrador.cedula}`, color: "green" },
+                                { icon: FaPhoneAlt, text: `${administrador.telefono}`, color: "green" },
                                 { icon: FaUserTie, text: `${administrador.rol}`, color: "purple" },
                             ]}
                             actions={[

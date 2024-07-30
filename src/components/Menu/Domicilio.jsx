@@ -16,7 +16,11 @@ export const Domicilio = () => {
     nombre: '',
     zonaDeRiesgo: '',
   });
-  const [editingDomicilio, setEditingDomicilio] = useState(null);
+  const [editingDomicilio, setEditingDomicilio] = useState({
+    nombre: '',
+    zonaDeRiesgo: '',
+    id: null
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -67,7 +71,11 @@ export const Domicilio = () => {
 
   const handleEdit = (domicilio) => {
     const { nombre, zonaDeRiesgo } = domicilio;
-    setEditingDomicilio({ nombre, zonaDeRiesgo, id: domicilio._id });
+    setEditingDomicilio({
+      nombre,
+      zonaDeRiesgo: zonaDeRiesgo ? "TRUE" : "FALSE", // Convertimos el booleano a string
+      id: domicilio._id
+    });
     setIsModalOpen(true);
   };
 
@@ -174,7 +182,11 @@ export const Domicilio = () => {
             key={domicilio._id}
             title={domicilio.nombre}
             items={[
-              { icon: FaMapMarkerAlt, text: `Zona de riesgo: ${domicilio.zonaDeRiesgo}`, color: "red" },
+              {
+                icon: FaMapMarkerAlt,
+                text: `Zona de riesgo: ${domicilio.zonaDeRiesgo ? 'Sí' : 'No'}`,
+                color: "red"
+              },
             ]}
             actions={[
               { icon: FaEdit, onClick: () => handleEdit(domicilio), color: "blue" },

@@ -8,7 +8,6 @@ const RoleProtectedRoute = ({ children, allowedRoles }) => {
   }
 
   const user = JSON.parse(atob(token.split('.')[1])); // Decodifica el token para obtener la información del usuario
-  console.log(user);
   const userRole = user.rol;
 
   if (!allowedRoles.includes(userRole)) {

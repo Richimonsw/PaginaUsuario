@@ -9,6 +9,7 @@ import {
   FaMapMarkerAlt,
   FaEdit,
   FaTrash,
+  FaQrcode
 } from "react-icons/fa";
 import { Card } from "../Card";
 import { FormModal } from "../FormModal";
@@ -17,7 +18,6 @@ import { SearchBar } from "../SearchBar";
 import Loading from "../Loading";
 import axios from "axios";
 import Modal from "react-modal";
-import QRCode from "react-qr-code";
 import {QRCodeModal } from "../QRCodeModal";
 
 Modal.setAppElement("#root");
@@ -108,7 +108,6 @@ export const Albergues = () => {
       const response = await axios.get("http://localhost:5000/api/albergue", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      console.log(response.data);
       setAlbergues(response.data);
     } catch (error) {
       setError("Error al cargar los albergues");
@@ -327,11 +326,11 @@ export const Albergues = () => {
               {
                 icon: FaBox,
                 onClick: () => handleInspect(albergue._id),
-                color: "green",
+                color: "blue",
                 type: "inspect",
               },
               {
-                icon: FaBox,
+                icon: FaQrcode,
                 onClick: () => handleInspectQR(albergue._id),
                 color: "green",
                 type: "inspect",

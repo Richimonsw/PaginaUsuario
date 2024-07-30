@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaArrowRight, FaUsers, FaPlus, FaEdit, FaTrash,FaBox, FaExclamationCircle, FaCheckCircle } from 'react-icons/fa';
+import { FaArrowRight, FaUsers, FaPlus, FaEdit, FaTrash, FaBox, FaExclamationCircle, FaCheckCircle, FaShapes, FaUsersCog } from 'react-icons/fa';
 import { Card } from '../Card';
 import { FormModal } from '../FormModal';
 import { GenericInput } from '../GenericInput';
@@ -20,7 +20,13 @@ export const Bodegas = () => {
     capacidad: '',
     albergue: ''
   });
-  const [editingBodega, setEditingBodega] = useState(null);
+  const [editingBodega, setEditingBodega] = useState({
+    nombre: '',
+    categoria: '',
+    capacidad: '',
+    albergue: '',
+    id: null
+  });
   const [albergues, setAlbergues] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -38,7 +44,6 @@ export const Bodegas = () => {
     nombre: (value) => {
       if (value.length < 3) return "El nombre debe tener al menos 3 caracteres";
       if (value.length > 50) return "El nombre no debe exceder los 50 caracteres";
-      if (!/^[a-zA-Z0-9\s]+$/.test(value)) return "El nombre solo puede contener letras, números y espacios";
       return null;
     },
     descripcion: (value) => {
@@ -106,7 +111,13 @@ export const Bodegas = () => {
 
   const handleEdit = (bodega) => {
     const { nombre, categoria, capacidad, albergue } = bodega;
-    setEditingBodega({ nombre, categoria, capacidad, albergue, id: bodega._id });
+    setEditingBodega({
+      nombre,
+      categoria,
+      capacidad,
+      albergue: albergue._id, // Guardamos solo el ID del albergue
+      id: bodega._id
+    });
     setIsModalOpen(true);
   };
 
@@ -117,6 +128,7 @@ export const Bodegas = () => {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       setBodegas(bodegas.filter(bodega => bodega._id !== id));
+      console.log(bodegas);
     } catch (error) {
       console.error('Error al eliminar la bodega:', error);
     }
@@ -184,7 +196,7 @@ export const Bodegas = () => {
   };
 
   if (isLoading) {
-    
+
     return <Loading />;
   }
 
@@ -226,18 +238,18 @@ export const Bodegas = () => {
             key={bodega._id}
             title={bodega.nombre}
             items={[
-              { icon: FaUsers, text: `Albergue: ${bodega.albergue.nombre}`, color: "blue" },
-              { icon: FaArrowRight, text: `Categoria: ${bodega.categoria}`, color: "green" },
-              { icon: FaArrowRight, text: `Capacidad: ${bodega.capacidad}`, color: "green" },
+              { icon: FaUsers, text: `Albergue: ${bodega.albergue.nombre}`, color: "green" },
+              { icon: FaShapes, text: `Categoria: ${bodega.categoria}`, color: "blue" },
+              { icon: FaUsersCog, text: `Capacidad: ${bodega.capacidad}`, color: "green" },
               { icon: FaBox, text: `Productos: ${bodega.cantidadProductos}`, color: "blue" },
-              { 
-                icon: bodega.alerta ? FaExclamationCircle : FaCheckCircle, 
-                text: bodega.alerta || "Bodega estable", 
-                color: getAlertColor(bodega.alerta) 
+              {
+                icon: bodega.alerta ? FaExclamationCircle : FaCheckCircle,
+                text: bodega.alerta || "Bodega estable",
+                color: getAlertColor(bodega.alerta)
               }
             ]}
             actions={[
-              { icon: FaBox, onClick: () => handleInspect(bodega._id), color: "green" , type: 'inspect' },
+              { icon: FaBox, onClick: () => handleInspect(bodega._id), color: "green", type: 'inspect' },
               { icon: FaEdit, onClick: () => handleEdit(bodega), color: "blue", type: 'edit' },
               { icon: FaTrash, onClick: () => handleDelete(bodega._id), color: "red", type: 'delete' },
             ]}

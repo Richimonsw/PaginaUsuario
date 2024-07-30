@@ -67,10 +67,11 @@ export const Enfermedades = () => {
     setEditingEnfermedad(enfermedad);
     form.setFieldsValue({
       ...enfermedad,
-      medicamentos: enfermedad.medicamentos.map(({ _id, nombre, descripcion }) => ({
+      medicamentos: enfermedad.medicamentos.map(({ _id, nombre, descripcion, codigo }) => ({
         key: _id, // Usamos _id como key para el formulario, pero no lo enviamos al backend
         nombre,
         descripcion,
+        codigo
       }))
     });
     setModalVisible(true);

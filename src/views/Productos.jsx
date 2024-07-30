@@ -1,16 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Input, Button, Space, Modal, Form, message } from 'antd';
-import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { Table, Input, Button, Space, Modal, Form, message, Select } from 'antd';
+import { EditOutlined, DeleteOutlined, PlusOutlined, SwapOutlined, MinusCircleOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FaArrowLeft } from 'react-icons/fa';
+
 export const Productos = () => {
   const [productos, setProductos] = useState([]);
   const [searchText, setSearchText] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isTransferModalVisible, setIsTransferModalVisible] = useState(false);
   const [form] = Form.useForm();
+  const [transferForm] = Form.useForm();
+  const [bodegas, setBodegas] = useState([]);
   const location = useLocation();
   const navigate = useNavigate();
+  const [error, setError] = useState(null);
 
   const getBodegaId = () => {
     const params = new URLSearchParams(location.search);
@@ -21,6 +27,7 @@ export const Productos = () => {
 
   useEffect(() => {
     fetchProductos();
+    fetchBodegas();
   }, []);
 
   const fetchProductos = async () => {
@@ -29,13 +36,24 @@ export const Productos = () => {
       const response = await axios.get('http://localhost:5000/api/productos/', {
         headers: { Authorization: `Bearer ${token}` }
       });
-      console.log(response.data);
       const productosFiltrados = response.data.filter(producto => producto.bodega === bodegaId);
-      console.log(productosFiltrados);
       setProductos(productosFiltrados);
     } catch (error) {
       console.error('Error al obtener productos:', error);
       message.error('No se pudieron cargar los productos');
+    }
+  };
+
+  const fetchBodegas = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get('http://localhost:5000/api/bodega', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setBodegas(response.data);
+    } catch (error) {
+      console.error('Error al obtener bodegas:', error);
+      message.error('No se pudieron cargar las bodegas');
     }
   };
 
@@ -105,11 +123,13 @@ export const Productos = () => {
 
   const handleAdd = () => {
     form.resetFields();
+    setIsEditing(false);
     setIsModalVisible(true);
   };
 
   const handleEdit = (record) => {
     form.setFieldsValue(record);
+    setIsEditing(true);
     setIsModalVisible(true);
   };
 
@@ -136,15 +156,13 @@ export const Productos = () => {
           fechaVencimiento: values.fechaVencimiento ? new Date(values.fechaVencimiento).toISOString().split('T')[0] : null
         };
         if (values._id) {
-          // Actualizar producto existente
-          const { _id, ...productData } = formattedValues; // Extraemos _id y el resto de los datos
+          const { _id, ...productData } = formattedValues;
           await axios.put(`http://localhost:5000/api/productos/${_id}`,
             { ...productData, bodega: bodegaId },
             { headers: { Authorization: `Bearer ${token}` } }
           );
           message.success('Producto actualizado con éxito');
         } else {
-          // Crear nuevo producto
           await axios.post('http://localhost:5000/api/productos/register',
             { ...formattedValues, bodega: bodegaId },
             { headers: { Authorization: `Bearer ${token}` } }
@@ -161,10 +179,48 @@ export const Productos = () => {
     });
   };
 
-  const handleGoBack = () => {
-    navigate(-1); // Navega a la vista anterior
+  const handleModalCancel = () => {
+    setIsModalVisible(false);
+    setIsEditing(false);
+    form.resetFields();
   };
 
+  const handleTransfer = () => {
+    transferForm.resetFields();
+    setIsTransferModalVisible(true);
+  };
+
+  const handleTransferModalOk = () => {
+    transferForm.validateFields().then(async (values) => {
+      try {
+        const token = localStorage.getItem('token');
+        const transferData = {
+          ...values,
+          bodegaOrigenId: bodegaId
+        };
+        await axios.post('http://localhost:5000/api/productos/transferirProducto', transferData, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        message.success('Productos transferidos con éxito');
+        setIsTransferModalVisible(false);
+        transferForm.resetFields();
+        fetchProductos();
+      } catch (error) {
+        console.error('Error al transferir productos:', error);
+        setError(error.response.data);
+        message.error('No se pudieron transferir los productos');
+      }
+    });
+  };
+
+  const handleTransferModalCancel = () => {
+    setIsTransferModalVisible(false);
+    transferForm.resetFields();
+  };
+
+  const handleGoBack = () => {
+    navigate(-1);
+  };
 
   return (
     <div className="p-4">
@@ -186,20 +242,27 @@ export const Productos = () => {
         <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
           Agregar Producto
         </Button>
+        <Button type="primary" icon={<SwapOutlined />} onClick={handleTransfer}>
+          Transferir Productos
+        </Button>
       </Space>
-      <Table columns={columns} dataSource={productos} rowKey="_id" scroll={{ x: 'max-content' }}
+      <Table
+        columns={columns}
+        dataSource={productos}
+        rowKey="_id"
+        scroll={{ x: 'max-content' }}
         pagination={{
           pageSize: 10,
           showSizeChanger: true,
           showQuickJumper: true
-        }} />
-
+        }}
+      />
 
       <Modal
-        title="Producto"
+        title={isEditing ? "Editar Producto" : "Agregar Producto"}
         visible={isModalVisible}
         onOk={handleModalOk}
-        onCancel={() => setIsModalVisible(false)}
+        onCancel={handleModalCancel}
       >
         <Form form={form} layout="vertical">
           <Form.Item name="_id" hidden>
@@ -218,12 +281,84 @@ export const Productos = () => {
             <Input />
           </Form.Item>
           <Form.Item name="descripcion" label="Descripción">
-            <Input.TextArea />
+            <Input />
           </Form.Item>
-          <Form.Item name="fechaVencimiento" label="Fecha de vencimiento" rules={[{ required: true }]}>
+          <Form.Item name="fechaVencimiento" label="Fecha de caducidad">
             <Input type="date" />
           </Form.Item>
         </Form>
+      </Modal>
+
+      <Modal
+        title="Transferir Productos"
+        visible={isTransferModalVisible}
+        onOk={handleTransferModalOk}
+        onCancel={handleTransferModalCancel}
+      >
+        <Form form={transferForm} layout="vertical">
+          <Form.List name="productos">
+            {(fields, { add, remove }) => (
+              <>
+                {fields.map((field, index) => (
+                  <Space key={field.key} align="baseline">
+                    <Form.Item
+                      {...field}
+                      name={[field.name, 'producto']}
+                      fieldKey={[field.fieldKey, 'producto']}
+                      label="Producto"
+                      rules={[{ required: true, message: 'Selecciona un producto' }]}
+                    >
+                      <Select placeholder="Selecciona un producto" style={{ width: 200 }}>
+                        {productos.map(producto => (
+                          <Select.Option key={producto._id} value={producto._id}>
+                            {producto.nombre}
+                          </Select.Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                    <Form.Item
+                      {...field}
+                      name={[field.name, 'cantidad']}
+                      fieldKey={[field.fieldKey, 'cantidad']}
+                      label="Cantidad"
+                      rules={[{ required: true, message: 'Ingresa la cantidad' }]}
+                    >
+                      <Input type="number" />
+                    </Form.Item>
+                    <MinusCircleOutlined onClick={() => remove(field.name)} />
+                  </Space>
+                ))}
+                <Form.Item>
+                  <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                    Agregar Producto
+                  </Button>
+                </Form.Item>
+              </>
+            )}
+          </Form.List>
+          <Form.Item
+            name="bodegaDestinoId"
+            label="Bodega Destino"
+            rules={[{ required: true, message: 'Selecciona una bodega de destino' }]}
+          >
+            <Select placeholder="Selecciona una bodega" style={{ width: '100%' }}>
+              {bodegas
+                .filter(bodega => bodega._id !== bodegaId)
+                .map(bodega => (
+                  <Select.Option key={bodega._id} value={bodega._id}>
+                    {bodega.nombre}
+                  </Select.Option>
+                ))}
+            </Select>
+          </Form.Item>
+          {error && (
+            <div className="mt-4 text-red-500">
+              {error}
+            </div>
+          )}
+        </Form>
+
+
       </Modal>
     </div>
   );

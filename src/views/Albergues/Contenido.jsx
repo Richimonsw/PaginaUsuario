@@ -11,6 +11,7 @@ export const Contenido = () => {
     const [ciudadanos, setCiudadanos] = useState([]);
     const [searchText, setSearchText] = useState('');
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(false);
     const [form] = Form.useForm();
     const location = useLocation();
@@ -121,6 +122,7 @@ export const Contenido = () => {
 
     const handleEdit = (record) => {
         form.setFieldsValue(record);
+        setIsEditing(true);
         setIsModalVisible(true);
     };
 
@@ -203,7 +205,7 @@ export const Contenido = () => {
                     />
                 </Spin>
                 <Modal
-                    title="Ciudadano"
+                    title={isEditing ? "Editar Ciudadano" : "Agregar Ciudadano"}
                     visible={isModalVisible}
                     onOk={handleModalOk}
                     onCancel={() => setIsModalVisible(false)}
@@ -219,7 +221,10 @@ export const Contenido = () => {
                             <Input />
                         </Form.Item>
                         <Form.Item name="cedula" label="Cédula" rules={[{ required: true }]}>
-                            <Input />
+                            <Input
+                                readOnly={isEditing}
+                                style={isEditing ? { backgroundColor: '#f5f5f5', cursor: 'not-allowed' } : {}}
+                            />
                         </Form.Item>
                         <Form.Item name="telefono" label="Teléfono" rules={[{ required: true }]}>
                             <Input />
