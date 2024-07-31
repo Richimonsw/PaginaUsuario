@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Input, Button, Space, Modal, Form, message, Select } from 'antd';
+import { Table, Input, Button, Space, Modal, Form, message, Select, Row, Col } from 'antd';
 import { EditOutlined, DeleteOutlined, PlusOutlined, SwapOutlined, MinusCircleOutlined, QrcodeOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -298,7 +298,7 @@ export const Productos = () => {
 
   return (
     <div className="p-4">
-      <div className="flex items-center mb-4">
+      <div className="mb-4">
         <button
           onClick={handleGoBack}
           className="flex items-center text-blue-500 hover:text-blue-700 transition-colors"
@@ -307,22 +307,30 @@ export const Productos = () => {
           Volver
         </button>
       </div>
-      <Space style={{ marginBottom: 16 }}>
-        <Input.Search
-          placeholder="Buscar por nombre"
-          onSearch={handleSearch}
-          style={{ width: 200 }}
-        />
-        <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
-          Agregar Producto
-        </Button>
-        <Button type="primary" icon={<SwapOutlined />} onClick={handleTransfer}>
-          Transferir Productos
-        </Button>
-        <Button type="primary" icon={<QrcodeOutlined />} onClick={() => setIsQRModalVisible(true)}>
-          Escanear Código QR
-        </Button>
-      </Space>
+      <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
+        <Col xs={24} sm={12} md={8} lg={6}>
+          <Input.Search
+            placeholder="Buscar por nombre"
+            onSearch={handleSearch}
+            style={{ width: '100%' }}
+          />
+        </Col>
+        <Col xs={24} sm={12} md={8} lg={6}>
+          <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd} block>
+            Agregar Producto
+          </Button>
+        </Col>
+        <Col xs={24} sm={12} md={8} lg={6}>
+          <Button type="primary" icon={<SwapOutlined />} onClick={handleTransfer} block>
+            Transferir Productos
+          </Button>
+        </Col>
+        <Col xs={24} sm={12} md={8} lg={6}>
+          <Button type="primary" icon={<QrcodeOutlined />} onClick={() => setIsQRModalVisible(true)} block>
+            Escanear Código QR
+          </Button>
+        </Col>
+      </Row>
       <Modal
         title="Escanear Código QR"
         visible={isQRModalVisible}
@@ -346,7 +354,6 @@ export const Productos = () => {
             <p>{scanResult === 'success' ? 'Producto escaneado correctamente' : 'Error al escanear el producto'}</p>
           </div>
         )}
-
         {!isScanning && <p>Espere un momento antes de escanear otro código...</p>}
       </Modal>
       <Table
@@ -360,7 +367,6 @@ export const Productos = () => {
           showQuickJumper: true
         }}
       />
-
       <Modal
         title={isEditing ? "Editar Producto" : "Agregar Producto"}
         visible={isModalVisible}
@@ -381,7 +387,6 @@ export const Productos = () => {
             <Input type="number" />
           </Form.Item>
           <Form.Item name="codigo" label="Codigo" rules={[{ required: true }]}>
-
             <Input
               readOnly={isEditing}
               style={isEditing ? { backgroundColor: '#f5f5f5', cursor: 'not-allowed' } : {}}
@@ -399,7 +404,6 @@ export const Productos = () => {
           </Form.Item>
         </Form>
       </Modal>
-
       <Modal
         title="Transferir Productos"
         visible={isTransferModalVisible}
@@ -468,8 +472,6 @@ export const Productos = () => {
             </div>
           )}
         </Form>
-
-
       </Modal>
     </div>
   );
