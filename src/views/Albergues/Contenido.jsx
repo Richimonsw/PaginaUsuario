@@ -5,7 +5,8 @@ import axios from 'axios';
 import { FaArrowLeft } from 'react-icons/fa';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Table, Input, Button, Space, Modal, Form, message, Spin } from 'antd';
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, QrcodeOutlined } from '@ant-design/icons';
+
 
 export const Contenido = () => {
     const [ciudadanos, setCiudadanos] = useState([]);
@@ -17,6 +18,9 @@ export const Contenido = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const [rol, setRol] = useState('');
+    
+
+    
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -184,6 +188,7 @@ export const Contenido = () => {
                 </>
             )}
             <Bodegas albergueId={albergueId} />
+            
             <div className="bg-white p-4 mt-5 rounded-lg shadow">
                 <h2 className="text-2xl font-bold mb-4">Ciudadanos</h2>
                 <Input.Search

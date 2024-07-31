@@ -31,7 +31,7 @@ export const Bodegas = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [rol, setRol] = useState('');
-
+  
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -262,7 +262,8 @@ export const Bodegas = () => {
         <p className="text-center text-gray-500 mt-4">No se encontraron bodegas.</p>
       )}
 
-
+      
+      
       <FormModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}

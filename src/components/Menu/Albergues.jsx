@@ -251,6 +251,7 @@ export const Albergues = () => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
+      console.log(response.data);
       setQrCode(response.data.qrCode);
       setIsModalOpenQR(true);
     } catch (error) {

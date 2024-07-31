@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Input, Button, Space, Modal, Form, message, Select } from 'antd';
-import { EditOutlined, DeleteOutlined, PlusOutlined, SwapOutlined, MinusCircleOutlined } from '@ant-design/icons';
+import { EditOutlined, DeleteOutlined, PlusOutlined, SwapOutlined, MinusCircleOutlined, QrcodeOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FaArrowLeft } from 'react-icons/fa';
+import QrScanner from 'react-qr-scanner'
+import useSound from 'use-sound';
+import successSound from '../assets/sound/exito.mp3';
+import errorSound from '../assets/sound/error.mp3';
 
 export const Productos = () => {
   const [productos, setProductos] = useState([]);
@@ -17,6 +21,64 @@ export const Productos = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [error, setError] = useState(null);
+  const [isQRModalVisible, setIsQRModalVisible] = useState(false);
+  const [isScanning, setIsScanning] = useState(true);
+  const [scanResult, setScanResult] = useState(null);
+  const [playSuccess] = useSound(successSound);
+  const [playError] = useSound(errorSound);
+
+  const handleQRScan = async (result) => {
+    if (result && isScanning) {
+      setIsScanning(false);
+      try {
+        const token = localStorage.getItem('token');
+        const bodegaId = new URLSearchParams(location.search).get('Bodega_id');
+
+        const response = await axios.post(
+          'http://localhost:5000/api/productos/actualizarProductoPorQR',
+          {
+            qrData: result,
+            bodegaId: bodegaId,
+          },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        console.log(response);
+        if (response.data.status === 'error') {
+          playError();
+          setScanResult('error');
+          message.error(response.data.message);
+        } else {
+          playSuccess();
+          setScanResult('success');
+          message.success(response.data.message);
+          fetchProductos(); // Asegúrate de que esta función exista y actualice la lista de productos
+        }
+      } catch (error) {
+        console.error('Error al procesar QR:', error);
+        playError();
+        setScanResult('error');
+        if (error.response) {
+          message.error(`Error del servidor: ${error.response.data.message || 'No se pudo procesar el código QR'}`);
+        } else if (error.request) {
+          message.error('No se pudo conectar con el servidor');
+        } else {
+          message.error('Error al procesar la solicitud');
+        }
+      }
+
+      setTimeout(() => {
+        setScanResult(null); // Restablece el estado del resultado del escaneo
+        setIsScanning(true);
+      }, 3000);
+    }
+  };
+
+  const handleQRError = (error) => {
+    console.error(error);
+    playError();
+    setScanResult('error');
+    message.error('Error al escanear el código QR');
+  };
 
   const getBodegaId = () => {
     const params = new URLSearchParams(location.search);
@@ -128,7 +190,17 @@ export const Productos = () => {
   };
 
   const handleEdit = (record) => {
-    form.setFieldsValue(record);
+
+    // Convertir la fecha a formato yyyy-MM-dd
+    const date = new Date(record.fechaVencimiento);
+    const formattedDate = date.toISOString().split('T')[0]; // Esto dará formato yyyy-MM-dd
+
+    const formattedRecord = {
+      ...record,
+      fechaVencimiento: formattedDate
+    };
+
+    form.setFieldsValue(formattedRecord);
     setIsEditing(true);
     setIsModalVisible(true);
   };
@@ -153,7 +225,7 @@ export const Productos = () => {
         const token = localStorage.getItem('token');
         const formattedValues = {
           ...values,
-          fechaVencimiento: values.fechaVencimiento ? new Date(values.fechaVencimiento).toISOString().split('T')[0] : null
+          fechaVencimiento: values.fechaVencimiento ? new Date(values.fechaVencimiento).toISOString() : null
         };
         if (values._id) {
           const { _id, ...productData } = formattedValues;
@@ -222,6 +294,8 @@ export const Productos = () => {
     navigate(-1);
   };
 
+
+
   return (
     <div className="p-4">
       <div className="flex items-center mb-4">
@@ -245,7 +319,36 @@ export const Productos = () => {
         <Button type="primary" icon={<SwapOutlined />} onClick={handleTransfer}>
           Transferir Productos
         </Button>
+        <Button type="primary" icon={<QrcodeOutlined />} onClick={() => setIsQRModalVisible(true)}>
+          Escanear Código QR
+        </Button>
       </Space>
+      <Modal
+        title="Escanear Código QR"
+        visible={isQRModalVisible}
+        onCancel={() => setIsQRModalVisible(false)}
+        footer={null}
+      >
+        {isScanning ? (
+          <QrScanner
+            delay={300}
+            onError={handleQRError}
+            onScan={handleQRScan}
+            style={{ width: '100%' }}
+          />
+        ) : (
+          <div style={{ textAlign: 'center', padding: '20px' }}>
+            {scanResult === 'success' ? (
+              <CheckCircleOutlined style={{ fontSize: '48px', color: 'green' }} />
+            ) : (
+              <CloseCircleOutlined style={{ fontSize: '48px', color: 'red' }} />
+            )}
+            <p>{scanResult === 'success' ? 'Producto escaneado correctamente' : 'Error al escanear el producto'}</p>
+          </div>
+        )}
+
+        {!isScanning && <p>Espere un momento antes de escanear otro código...</p>}
+      </Modal>
       <Table
         columns={columns}
         dataSource={productos}
@@ -278,13 +381,21 @@ export const Productos = () => {
             <Input type="number" />
           </Form.Item>
           <Form.Item name="codigo" label="Codigo" rules={[{ required: true }]}>
-            <Input />
+
+            <Input
+              readOnly={isEditing}
+              style={isEditing ? { backgroundColor: '#f5f5f5', cursor: 'not-allowed' } : {}}
+            />
           </Form.Item>
           <Form.Item name="descripcion" label="Descripción">
             <Input />
           </Form.Item>
           <Form.Item name="fechaVencimiento" label="Fecha de caducidad">
-            <Input type="date" />
+            <Input
+              type="date"
+              style={isEditing ? { backgroundColor: '#f5f5f5', cursor: 'not-allowed' } : {}}
+              disabled={isEditing}
+            />
           </Form.Item>
         </Form>
       </Modal>
