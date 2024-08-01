@@ -7,6 +7,9 @@ export const FormRegistro = () => {
   const { register, handleSubmit, errors, onSubmit, domicilios, enfermedades, medicamentos, isSubmitting, submitError, submitSuccess, watch } = useFormRegistro();
   const [fieldValues, setFieldValues] = useState({});
 
+
+  
+
   const updatedFormConfig = formConfig.map(field => {
     if (field.name === 'domicilio') {
       return {

@@ -99,6 +99,9 @@ export const useFormRegistro = () => {
             qrURL: cloudinaryResponse.data.secure_url,
           }
         );
+
+        reset();
+        setSubmitSuccess(true);
       } else {
         const qrData = JSON.stringify(data);
         const qrImage = await QRCode.toDataURL(qrData);
@@ -128,7 +131,7 @@ export const useFormRegistro = () => {
     } catch (error) {
       setSubmitError(
         error.response?.data?.error ||
-          "Hubo un error al procesar la solicitud. Por favor, inténtelo de nuevo."
+        "Hubo un error al procesar la solicitud. Por favor, inténtelo de nuevo."
       );
       console.error(error);
     } finally {
