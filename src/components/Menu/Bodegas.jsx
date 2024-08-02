@@ -31,7 +31,7 @@ export const Bodegas = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [rol, setRol] = useState('');
-  
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -84,7 +84,12 @@ export const Bodegas = () => {
       const response = await axios.get('http://localhost:5000/api/bodega', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      setBodegas(response.data);
+      const bodegasConStockTotal = response.data.map(bodega => ({
+        ...bodega,
+        stockTotal: bodega.productos.reduce((total, producto) => total + (producto.stockMin || 0), 0)
+      }));
+
+      setBodegas(bodegasConStockTotal);
     } catch (error) {
       setError('Error al cargar las bodegas');
       console.error('Error al cargar las bodegas:', error);
@@ -240,7 +245,12 @@ export const Bodegas = () => {
             items={[
               { icon: FaUsers, text: `Albergue: ${bodega.albergue.nombre}`, color: "green" },
               { icon: FaShapes, text: `Categoria: ${bodega.categoria}`, color: "blue" },
-              { icon: FaUsersCog, text: `Capacidad: ${bodega.capacidad}`, color: "green" },
+              {
+                icon: FaUsersCog,
+                text: `Ocupación: ${bodega.stockTotal}/${bodega.capacidad}`,
+                color: "green"
+              },
+              { icon: FaBox, text: `Productos: ${bodega.porcentajeOcupacion}%`, color: "blue" },
               { icon: FaBox, text: `Productos: ${bodega.cantidadProductos}`, color: "blue" },
               {
                 icon: bodega.alerta ? FaExclamationCircle : FaCheckCircle,
@@ -262,8 +272,8 @@ export const Bodegas = () => {
         <p className="text-center text-gray-500 mt-4">No se encontraron bodegas.</p>
       )}
 
-      
-      
+
+
       <FormModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
