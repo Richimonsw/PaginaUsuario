@@ -81,7 +81,7 @@ export const Bodegas = () => {
     setError(null);
     const token = localStorage.getItem('token');
     try {
-      const response = await axios.get('http://localhost:5000/api/bodega', {
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}bodega`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const bodegasConStockTotal = response.data.map(bodega => ({
@@ -101,7 +101,7 @@ export const Bodegas = () => {
   const fetchAlbergues = async () => {
     const token = localStorage.getItem('token');
     try {
-      const response = await axios.get('http://localhost:5000/api/albergue', {
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}albergue`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       setAlbergues(response.data);
@@ -129,7 +129,7 @@ export const Bodegas = () => {
   const handleDelete = async (id) => {
     const token = localStorage.getItem('token');
     try {
-      await axios.delete(`http://localhost:5000/api/bodega/${id}`, {
+      await axios.delete(`${import.meta.env.VITE_BASE_URL}bodega/${id}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       setBodegas(bodegas.filter(bodega => bodega._id !== id));
@@ -180,12 +180,12 @@ export const Bodegas = () => {
       let response;
       if (editingBodega) {
         const { id, ...updateData } = editingBodega;
-        response = await axios.put(`http://localhost:5000/api/bodega/${id}`, updateData, {
+        response = await axios.put(`${import.meta.env.VITE_BASE_URL}bodega/${id}`, updateData, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         setBodegas(bodegas.map(a => a._id === id ? { ...a, ...response.data.bodega } : a));
       } else {
-        response = await axios.post('http://localhost:5000/api/bodega/register', newBodega, {
+        response = await axios.post(`${import.meta.env.VITE_BASE_URL}bodega/register`, newBodega, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         setBodegas([...bodegas, response.data.bodega]);

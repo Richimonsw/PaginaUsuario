@@ -19,7 +19,7 @@ export const Bodegas = ({ albergueId }) => {
     const fetchBodegas = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get(`http://localhost:5000/api/bodega/${albergueId}/bodegas`, {
+            const response = await axios.get(`${import.meta.env.VITE_BASE_URL}bodega/${albergueId}/bodegas`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             setBodegas(response.data.data);

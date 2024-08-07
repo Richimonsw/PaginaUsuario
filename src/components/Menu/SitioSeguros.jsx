@@ -60,7 +60,7 @@ export const SitioSeguros = () => {
     setError(null);
     const token = localStorage.getItem('token');
     try {
-      const response = await axios.get('http://localhost:5000/api/sitioSeguro', {
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}sitioSeguro`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       setSitioSeguros(response.data);
@@ -85,7 +85,7 @@ export const SitioSeguros = () => {
   const handleDelete = async (id) => {
     const token = localStorage.getItem('token');
     try {
-      await axios.delete(`http://localhost:5000/api/sitioSeguro/${id}`, {
+      await axios.delete(`${import.meta.env.VITE_BASE_URL}sitioSeguro/${id}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       setSitioSeguros(sitioSeguros.filter(sitioSeguro => sitioSeguro._id !== id));
@@ -135,12 +135,12 @@ export const SitioSeguros = () => {
       let response;
       if (editingSitioSeguro) {
         const { id, ...updateData } = editingSitioSeguro;
-        response = await axios.put(`http://localhost:5000/api/sitioSeguro/${id}`, updateData, {
+        response = await axios.put(`${import.meta.env.VITE_BASE_URL}sitioSeguro/${id}`, updateData, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         setSitioSeguros(sitioSeguros.map(a => a._id === id ? { ...a, ...response.data.sitioSeguro } : a));
       } else {
-        response = await axios.post('http://localhost:5000/api/sitioSeguro/register', newSitioSeguro, {
+        response = await axios.post(`${import.meta.env.VITE_BASE_URL}sitioSeguro/register`, newSitioSeguro, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         setSitioSeguros([...sitioSeguros, response.data.sitioSeguro]);

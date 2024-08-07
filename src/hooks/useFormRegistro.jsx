@@ -36,7 +36,7 @@ export const useFormRegistro = () => {
     const fetchDomicilios = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/domicilios"
+          `${import.meta.env.VITE_BASE_URL}domicilios`
         );
         setDomicilios(response.data);
       } catch (error) {
@@ -47,7 +47,7 @@ export const useFormRegistro = () => {
     const fetchEnfermedades = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/enfermedad"
+          `${import.meta.env.VITE_BASE_URL}enfermedad`
         );
         setEnfermedades(response.data);
       } catch (error) {
@@ -93,7 +93,7 @@ export const useFormRegistro = () => {
         );
 
         const personaResponse = await axios.post(
-          "http://localhost:5000/api/ciudadano/register",
+          `${import.meta.env.VITE_BASE_URL}ciudadano/register`,
           {
             ...data,
             qrURL: cloudinaryResponse.data.secure_url,
@@ -115,7 +115,7 @@ export const useFormRegistro = () => {
         );
 
         const personaResponse = await axios.post(
-          "http://localhost:5000/api/ciudadano/registerUser",
+          `${import.meta.env.VITE_BASE_URL}ciudadano/registerUser`,
           {
             ...data,
             qrURL: cloudinaryResponse.data.secure_url,

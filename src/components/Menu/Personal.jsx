@@ -27,7 +27,7 @@ export const Personal = () => {
   const fetchAdministradores = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/usuario', {
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}usuario`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       setAdministradores(response.data);
@@ -40,7 +40,7 @@ export const Personal = () => {
   const fetchAlbergues = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/albergue', {
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}albergue`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       setAlbergues(response.data);
@@ -76,12 +76,12 @@ export const Personal = () => {
     try {
       const token = localStorage.getItem('token');
       if (editingId) {
-        await axios.put(`http://localhost:5000/api/usuario/${editingId}`, dataToSend, {
+        await axios.put(`${import.meta.env.VITE_BASE_URL}usuario/${editingId}`, dataToSend, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         showAlert('Administrador actualizado con éxito', 'success');
       } else {
-        await axios.post('http://localhost:5000/api/usuario/register', formData, {
+        await axios.post(`${import.meta.env.VITE_BASE_URL}usuario/register`, formData, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         showAlert('Administrador creado con éxito', 'success');
@@ -112,7 +112,7 @@ export const Personal = () => {
     if (window.confirm('¿Está seguro de que desea eliminar este administrador?')) {
       try {
         const token = localStorage.getItem('token');
-        await axios.delete(`http://localhost:5000/api/usuario/${id}`, {
+        await axios.delete(`${import.meta.env.VITE_BASE_URL}usuario/${id}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         fetchAdministradores();

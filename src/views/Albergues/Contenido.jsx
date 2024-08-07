@@ -45,7 +45,7 @@ export const Contenido = () => {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get(`http://localhost:5000/api/ciudadano/${albergueId}/ciudadanos`, {
+            const response = await axios.get(`${import.meta.env.VITE_BASE_URL}ciudadano/${albergueId}/ciudadanos`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -133,7 +133,7 @@ export const Contenido = () => {
     const handleDelete = async (record) => {
         try {
             const token = localStorage.getItem('token');
-            await axios.delete(`http://localhost:5000/api/ciudadano/${record._id}`, {
+            await axios.delete(`${import.meta.env.VITE_BASE_URL}ciudadano/${record._id}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             message.success('Ciudadano eliminado con éxito');
@@ -150,7 +150,7 @@ export const Contenido = () => {
                 const token = localStorage.getItem('token');
                 if (values._id) {
                     // Actualizar ciudadano existente
-                    await axios.put(`http://localhost:5000/api/ciudadano/${values._id}`,
+                    await axios.put(`${import.meta.env.VITE_BASE_URL}ciudadano/${values._id}`,
                         { ...values, albergue: albergueId },
                         { headers: { Authorization: `Bearer ${token}` } }
                     );

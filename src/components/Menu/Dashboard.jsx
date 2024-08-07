@@ -30,11 +30,11 @@ export const Dashboard = () => {
 
       try {
         const [alberguesRes, bodegasRes, sitiosSeguroRes, ciudadanosTotalRes, ciudadanosDataRes] = await Promise.all([
-          axios.get('http://localhost:5000/api/albergue/total', config),
-          axios.get('http://localhost:5000/api/bodega/total', config),
-          axios.get('http://localhost:5000/api/sitioSeguro/total', config),
-          axios.get('http://localhost:5000/api/ciudadano/total', config),
-          axios.get('http://localhost:5000/api/ciudadano/ciudadanosDeTodosLosAlbergues', config),
+          axios.get(`${import.meta.env.VITE_BASE_URL}albergue/total`, config),
+          axios.get(`${import.meta.env.VITE_BASE_URL}bodega/total`, config),
+          axios.get(`${import.meta.env.VITE_BASE_URL}sitioSeguro/total`, config),
+          axios.get(`${import.meta.env.VITE_BASE_URL}ciudadano/total`, config),
+          axios.get(`${import.meta.env.VITE_BASE_URL}ciudadano/ciudadanosDeTodosLosAlbergues`, config),
         ]);
 
         setStats({

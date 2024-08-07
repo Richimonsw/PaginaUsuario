@@ -17,7 +17,7 @@ export const Administradores = ({ albergueId }) => {
     const fetchAdministradores = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get(`http://localhost:5000/api/usuario/${albergueId}/albergue`, {
+            const response = await axios.get(`${import.meta.env.VITE_BASE_URL}usuario/${albergueId}/albergue`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             setAdministradores(response.data);

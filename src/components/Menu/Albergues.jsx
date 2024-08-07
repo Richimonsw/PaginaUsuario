@@ -105,7 +105,7 @@ export const Albergues = () => {
     setError(null);
     const token = localStorage.getItem("token");
     try {
-      const response = await axios.get("http://localhost:5000/api/albergue", {
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}albergue`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setAlbergues(response.data);
@@ -145,7 +145,7 @@ export const Albergues = () => {
   const handleDelete = async (id) => {
     const token = localStorage.getItem("token");
     try {
-      await axios.delete(`http://localhost:5000/api/albergue/${id}`, {
+      await axios.delete(`${import.meta.env.VITE_BASE_URL}albergue/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setAlbergues(albergues.filter((albergue) => albergue._id !== id));
@@ -207,7 +207,7 @@ export const Albergues = () => {
       if (editingAlbergue) {
         const { id, ...updateData } = editingAlbergue;
         response = await axios.put(
-          `http://localhost:5000/api/albergue/${id}`,
+          `${import.meta.env.VITE_BASE_URL}albergue/${id}`,
           updateData,
           {
             headers: { Authorization: `Bearer ${token}` },
@@ -222,7 +222,7 @@ export const Albergues = () => {
         setLoading(false);
       } else {
         response = await axios.post(
-          "http://localhost:5000/api/albergue/register",
+          `${import.meta.env.VITE_BASE_URL}albergue/register`,
           newAlbergue,
           {
             headers: { Authorization: `Bearer ${token}` },
@@ -246,7 +246,7 @@ export const Albergues = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.get(
-        `http://localhost:5000/api/albergue/${id}/qr`,
+        `${import.meta.env.VITE_BASE_URL}albergue/${id}/qr`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }

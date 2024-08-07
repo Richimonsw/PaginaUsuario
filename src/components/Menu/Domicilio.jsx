@@ -53,7 +53,7 @@ export const Domicilio = () => {
     setError(null);
     const token = localStorage.getItem('token');
     try {
-      const response = await axios.get('http://localhost:5000/api/domicilios', {
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}domicilios`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       setDomicilios(response.data);
@@ -82,7 +82,7 @@ export const Domicilio = () => {
   const handleDelete = async (id) => {
     const token = localStorage.getItem('token');
     try {
-      await axios.delete(`http://localhost:5000/api/domicilios/${id}`, {
+      await axios.delete(`${import.meta.env.VITE_BASE_URL}domicilios/${id}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       setDomicilios(domicilios.filter(domicilio => domicilio._id !== id));
@@ -132,12 +132,12 @@ export const Domicilio = () => {
       let response;
       if (editingDomicilio) {
         const { id, ...updateData } = editingDomicilio;
-        response = await axios.put(`http://localhost:5000/api/domicilios/${id}`, updateData, {
+        response = await axios.put(`${import.meta.env.VITE_BASE_URL}domicilios/${id}`, updateData, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         setDomicilios(domicilios.map(a => a._id === id ? { ...a, ...response.data.domicilio } : a));
       } else {
-        response = await axios.post('http://localhost:5000/api/domicilios/register', newDomicilio, {
+        response = await axios.post(`${import.meta.env.VITE_BASE_URL}domicilios/register`, newDomicilio, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         setDomicilios([...domicilios, response.data.domicilio]);

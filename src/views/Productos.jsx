@@ -35,7 +35,7 @@ export const Productos = () => {
         const bodegaId = new URLSearchParams(location.search).get('Bodega_id');
 
         const response = await axios.post(
-          'http://localhost:5000/api/productos/actualizarProductoPorQR',
+          `${import.meta.env.VITE_BASE_URL}productos/actualizarProductoPorQR`,
           {
             qrData: result,
             bodegaId: bodegaId,
@@ -95,7 +95,7 @@ export const Productos = () => {
   const fetchProductos = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/productos/', {
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}productos/`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const productosFiltrados = response.data.filter(producto => producto.bodega === bodegaId);
@@ -109,7 +109,7 @@ export const Productos = () => {
   const fetchBodegas = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/bodega', {
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}bodega`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setBodegas(response.data);
@@ -208,7 +208,7 @@ export const Productos = () => {
   const handleDelete = async (record) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:5000/api/productos/${record._id}`, {
+      await axios.delete(`${import.meta.env.VITE_BASE_URL}productos/${record._id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       message.success('Producto eliminado con éxito');
@@ -229,13 +229,13 @@ export const Productos = () => {
         };
         if (values._id) {
           const { _id, ...productData } = formattedValues;
-          await axios.put(`http://localhost:5000/api/productos/${_id}`,
+          await axios.put(`${import.meta.env.VITE_BASE_URL}productos/${_id}`,
             { ...productData, bodega: bodegaId },
             { headers: { Authorization: `Bearer ${token}` } }
           );
           message.success('Producto actualizado con éxito');
         } else {
-          await axios.post('http://localhost:5000/api/productos/register',
+          await axios.post(`${import.meta.env.VITE_BASE_URL}productos/register`,
             { ...formattedValues, bodega: bodegaId },
             { headers: { Authorization: `Bearer ${token}` } }
           );
@@ -270,7 +270,7 @@ export const Productos = () => {
           ...values,
           bodegaOrigenId: bodegaId
         };
-        await axios.post('http://localhost:5000/api/productos/transferirProducto', transferData, {
+        await axios.post(`${import.meta.env.VITE_BASE_URL}productos/transferirProducto`, transferData, {
           headers: { Authorization: `Bearer ${token}` }
         });
         message.success('Productos transferidos con éxito');

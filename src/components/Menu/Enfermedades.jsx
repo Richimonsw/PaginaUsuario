@@ -6,7 +6,7 @@ import moment from 'moment';
 import * as XLSX from 'xlsx';
 
 const { Text } = Typography;
-const API_BASE_URL = 'http://localhost:5000/api/enfermedad';
+const API_BASE_URL = `${import.meta.env.VITE_BASE_URL}enfermedad`;
 
 // Función para obtener el token del localStorage
 const getToken = () => localStorage.getItem('token');
@@ -115,7 +115,7 @@ export const Enfermedades = () => {
     formData.append('file', file);
 
     try {
-      const response = await axiosInstance.post('http://localhost:5000/api/enfermedad/upload-excel', formData, {
+      const response = await axiosInstance.post(`${import.meta.env.VITE_BASE_URL}enfermedad/upload-excel`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
