@@ -225,6 +225,7 @@ export const SitioSeguros = () => {
           required
           validate={validations.cordenadas_x}
           label="Coordenada X"
+          step="any"
         />
         <GenericInput
           type="number"
@@ -235,6 +236,7 @@ export const SitioSeguros = () => {
           required
           validate={validations.cordenadas_y}
           label="Coordenada Y"
+          step="any"
         />
       </FormModal>
     </div>

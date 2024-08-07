@@ -18,7 +18,7 @@ import { SearchBar } from "../SearchBar";
 import Loading from "../Loading";
 import axios from "axios";
 import Modal from "react-modal";
-import {QRCodeModal } from "../QRCodeModal";
+import { QRCodeModal } from "../QRCodeModal";
 
 Modal.setAppElement("#root");
 
@@ -258,7 +258,7 @@ export const Albergues = () => {
       console.error(error);
     }
   }, []);
-  
+
   const closeModalQR = useCallback(() => {
     setIsModalOpenQR(false);
     setQrCode("");
@@ -427,30 +427,24 @@ export const Albergues = () => {
         <GenericInput
           type="number"
           name="cordenadas_x"
-          value={
-            editingAlbergue
-              ? editingAlbergue.cordenadas_x
-              : newAlbergue.cordenadas_x
-          }
+          value={editingAlbergue ? editingAlbergue.cordenadas_x : newAlbergue.cordenadas_x}
           onChange={handleInputChange}
           placeholder="Coordenada X"
           required
           validate={validations.cordenadas_x}
           label="Coordenada X"
+          step="any" // Permite cualquier número de decimales
         />
         <GenericInput
           type="number"
           name="cordenadas_y"
-          value={
-            editingAlbergue
-              ? editingAlbergue.cordenadas_y
-              : newAlbergue.cordenadas_y
-          }
+          value={editingAlbergue ? editingAlbergue.cordenadas_y : newAlbergue.cordenadas_y}
           onChange={handleInputChange}
           placeholder="Coordenada Y"
           required
           validate={validations.cordenadas_y}
           label="Coordenada Y"
+          step="any" // Permite cualquier número de decimales
         />
       </FormModal>
     </div>
