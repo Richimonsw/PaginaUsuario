@@ -61,7 +61,7 @@ export const useFormRegistro = () => {
 
   const selectedEnfermedad = watch("enfermedades");
   useEffect(() => {
-    if (selectedEnfermedad) {
+    if (selectedEnfermedad && selectedEnfermedad !== '') {
       const enfermedad = enfermedades.find(
         (e) => e.nombre === selectedEnfermedad
       );

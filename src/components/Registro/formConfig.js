@@ -5,8 +5,13 @@ export const formConfig = [
     type: 'text',
     options: {
       required: { value: true, message: "El nombre es obligatorio" },
-      minLength: { value: 2, message: "Nombre debe ser mayor a 2 caracteres" },
-      pattern: { value: /^[a-zA-Z\s]+$/, message: "El nombre no debe contener números" },
+      minLength: { value: 2, message: "El nombre debe ser mayor a 2 caracteres" },
+      pattern: {
+        // Se incluye la ñ y las vocales con tilde
+        value: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+(\s[a-zA-ZáéíóúÁÉÍÓÚñÑ]+)*$/,
+        message: "El nombre no debe contener números ni espacios al inicio o final"
+      },
+      validate: (value) => value.trim() === value || "El nombre no debe tener espacios al inicio o final"
     },
   },
   {
@@ -15,8 +20,12 @@ export const formConfig = [
     type: 'text',
     options: {
       required: { value: true, message: "El apellido es obligatorio" },
-      minLength: { value: 2, message: "Apellido debe ser mayor a 2 caracteres" },
-      pattern: { value: /^[a-zA-Z\s]+$/, message: "El apellido no debe contener números" },
+      minLength: { value: 2, message: "El apellido debe ser mayor a 2 caracteres" },
+      pattern: {
+        value: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ]+(\s[a-zA-ZáéíóúÁÉÍÓÚñÑ]+)*$/,
+        message: "El apellido no debe contener números ni espacios al inicio o final"
+      },
+      validate: (value) => value.trim() === value || "El apellido no debe tener espacios al inicio o final"
     },
   },
   {
@@ -47,7 +56,7 @@ export const formConfig = [
         value: /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/,
         message: "Correo no válido",
       },
-      
+
     },
   },
   {
@@ -65,7 +74,6 @@ export const formConfig = [
     label: 'Enfermedades o Alergias',
     type: 'select',
     options: {
-      required: { value: true, message: "Seleccione una enfermedad o alergia" },
       choices: [],
     },
   },
@@ -83,7 +91,10 @@ export const formConfig = [
     label: 'Medicamentos',
     type: 'select',
     options: {
-      required: { value: true, message: "Seleccione un medicamento" },
+      required: {
+        value: true,
+        message: "Seleccione un medicamento"
+      },
       choices: [],
     },
   },
